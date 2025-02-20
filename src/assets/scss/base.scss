@@ -1,0 +1,28 @@
+body {
+  transition: background-color .25s, color .25s;
+  color: var(--color-text);
+  background-color: #F4F5F7;
+}
+
+html,body,#app{
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #F4F5F7;
+}
+
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: none;
+
+}
+
+button{
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
