@@ -49,10 +49,10 @@
     <a-form ref="formRef" :model="editData['baseinfo']" :rules="rules">
       <div class="space-y-[25px]">
         <a-form-item name="info" label="会议发起地址">
-          <a-input v-model:value="editData['baseinfo']['info']"></a-input>
+          <a-input v-model:value="editData['baseinfo']['info']" placeholder="会议发起地址"></a-input>
         </a-form-item>
         <a-form-item name="url" label="会议链接">
-          <a-input v-model:value="editData['baseinfo']['url']"></a-input>
+          <a-input v-model:value="editData['baseinfo']['url']" placeholder="会议链接"></a-input>
         </a-form-item>
         <a-form-item name="time_start" label="开放时间">
           <a-date-picker  format="YYYY-MM-DD HH:mm"  :show-time="{ format: 'HH:mm' }" class="w-full" v-model:value="editData['baseinfo']['time_start']"/>

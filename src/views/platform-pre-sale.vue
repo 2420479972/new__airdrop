@@ -139,6 +139,7 @@ const {write:subscriptionWrite} = useWrite('set_platform_subscription',{
   onSuccess(data) {
     message.success('提交成功')
     sendParams = null
+    refetch()
   },
   onError: (error) => {
     message.error(error)
@@ -160,7 +161,6 @@ const onSubmit = () => {
           already_received: parseEther(String(platformParams.value.already_received)),
         }
         const approveValue = platformParams.value?.totalamount - allowance.value;
-         console.log(approveValue)
         if (approveValue > 0) {
           ApproveWrite([
               ABI97['ERC1229'].address,

@@ -2,7 +2,10 @@
   <div class="w-full h-full p-[12px] bg-[#F4F5F7]">
     <div class="w-full p-[9px] bg-[#fff] rounded-[5px]">
       <div class="flex gap-x-10 items-center">
-        <div class="text-[#3B3D47] text-[10px]">平台空投</div>
+        <div class="flex gap-x-10 items-center">
+          <div class="text-[#3B3D47] text-[10px]">平台空投</div>
+          <a-button type="primary" @click="addNew">发布空投</a-button>
+        </div>
       </div>
       <div class="mt-[12px] w-full">
         <a-table :columns="columns" :data-source="data" :scroll="{ x: 1300, y: 1000 }">
@@ -43,16 +46,16 @@
     <a-form ref="formRef" :model="editData['baseinfo']" :rules="rules">
       <div class="space-y-[25px]">
         <a-form-item label="代币地址" name="token">
-          <a-input v-model:value="editData['baseinfo']['token']"></a-input>
+          <a-input v-model:value="editData['baseinfo']['token']" placeholder="0x..."></a-input>
         </a-form-item>
         <a-form-item label="代币名称" name="info">
-          <a-input v-model:value="editData['baseinfo']['info']"></a-input>
+          <a-input v-model:value="editData['baseinfo']['info']" placeholder="代币名称"></a-input>
         </a-form-item>
         <a-form-item label="空投数量" name="totalamount">
-          <a-input-number v-model:value="editData['baseinfo']['totalamount']" class="w-full"></a-input-number>
+          <a-input-number v-model:value="editData['baseinfo']['totalamount']" placeholder="空投数量" class="w-full"></a-input-number>
         </a-form-item>
         <a-form-item label="开放时间" name="time_start">
-          <a-date-picker v-model:value="editData['baseinfo']['time_start']" :show-time="{ format: 'HH:mm' }" class="w-full"
+          <a-date-picker v-model:value="editData['baseinfo']['time_start']" placeholder="开放时间" :show-time="{ format: 'HH:mm' }" class="w-full"
                          format="YYYY-MM-DD HH:mm"/>
         </a-form-item>
       </div>
@@ -214,6 +217,11 @@ const confirm = (_item)=>{
   ])
 }
 
+const addNew = ()=>{
+  open.value = true;
+  editData.value.baseinfo = {}
+  editData.value.index = data.value.length;
+}
 
 
 </script>

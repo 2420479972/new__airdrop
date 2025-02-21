@@ -9,7 +9,7 @@
               <a-button type="link" @click="edit(text)">编辑</a-button>
             </template>
             <template v-if="column.key == 'already_received'">
-              <a-tag color="#4D6AEA" v-if="text['baseinfo'][column.key] == 0">待审核</a-tag>
+              <a-tag color="#4D6AEA" v-if="text['baseinfo'][column.key]">待审核</a-tag>
               <a-tag color="#3DB64B" v-else>审批通过</a-tag>
             </template>
             <template  v-else-if="column?.render">

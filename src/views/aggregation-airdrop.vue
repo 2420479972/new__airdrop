@@ -46,10 +46,10 @@
           <a-date-picker :format="dateFormat" :show-time="{ format: 'HH:mm' }" class="w-full" v-model:value="editData['baseinfo']['time_end']"/>
         </a-form-item>
         <a-form-item name="token" label="空投代币">
-          <a-input v-model:value="editData['baseinfo']['token']"></a-input>
+          <a-input v-model:value="editData['baseinfo']['token']" placeholder="0x..."></a-input>
         </a-form-item>
         <a-form-item name="wallet" label="结束剩余接受地址">
-          <a-input v-model:value="editData['baseinfo']['wallet']"></a-input>
+          <a-input v-model:value="editData['baseinfo']['wallet']" placeholder="0x..."></a-input>
         </a-form-item>
         <a-form-item name="totalamount" label="总空投数量">
           <a-input-number class="w-full" v-model:value="editData['baseinfo']['totalamount']"></a-input-number>

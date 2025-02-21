@@ -100,7 +100,7 @@
   <a-modal v-model:open="editUserNumberShow" :width="300"  title="编辑平台用户" @ok="editUserNumberOk" destroyOnClose>
     <div class="space-y-3">
       <a-form-item label="商户地址">
-        <a-input v-model:value="editUser['merchant_add']" placeholder="请输入商户地址" class="w-full"></a-input>
+        <a-input v-model:value="editUser['merchant_add']" placeholder="0x....." class="w-full"></a-input>
       </a-form-item>
       <a-form-item label="平台用户">
         <a-input-number :min="1" v-model:value="editUser['number_user']" placeholder="请输入平台用户" class="w-full"></a-input-number>
@@ -115,12 +115,12 @@
       <div class="mt-[15px] w-full">
         <div class="text-[#3B3D47] text-[8px] flex items-center">
           <a-form-item label="路由地址" name="tokenRouter">
-            <a-input  v-model:value="systemParams['tokenRouter']"  placeholder="请输入路由地址" style="width: 180px"/>
+            <a-input  v-model:value="systemParams['tokenRouter']"  placeholder="0x....." style="width: 180px"/>
           </a-form-item>
         </div>
         <div class="text-[#3B3D47] text-[8px] flex items-center">
           <a-form-item label="付费Token地址" name="usdt">
-            <a-input  v-model:value="systemParams['usdt']"  placeholder="请输入付费Token地址" style="width: 180px"/>
+            <a-input  v-model:value="systemParams['usdt']"   placeholder="0x....." style="width: 180px"/>
           </a-form-item>
         </div>
         <div class="text-[#3B3D47] text-[8px] flex items-center">
@@ -147,8 +147,9 @@
     </a-form>
 
   </a-modal>
-  <a-modal v-model:open="noticeShow" title="平台通知设置" @ok="noticeOnSubmit" destroyOnClose @cancel="noticeReset">
-    <a-form :model="noticeParams"  ref="noticeDomRef">
+
+
+  <a-modal v-model:open="noticeShow" title="平台通知设置" @ok="noticeOnSubmit"  @cancel="noticeReset">
       <div class="mt-[15px] w-full">
         <div class="text-[#3B3D47] text-[8px] flex items-center">
           <a-form-item label="通知" name="notice">
@@ -161,7 +162,7 @@
           </a-form-item>
         </div>
         <div class="text-[#3B3D47] text-[8px] flex items-center">
-          <a-form-item label="推特链接" name="twitter_link">
+          <a-form-item label="推特链接">
             <a-input  v-model:value="noticeParams['twitter_link']"  placeholder="请输入推特链接" style="width: 180px"/>
           </a-form-item>
         </div>
@@ -176,7 +177,6 @@
           </a-form-item>
         </div>
       </div>
-    </a-form>
 
   </a-modal>
 
@@ -193,6 +193,7 @@ import {ethers} from "ethers";
 import {Form, message} from "ant-design-vue";
 import {parseEther} from "viem";
 import {useEffectWagmi} from "@/hooks/useUserPurse.ts";
+
 const userInfo = ref<{
   liquidity?:BigInt,
   number_user?:BigInt,
@@ -213,7 +214,9 @@ const noticeShow = ref(false);
 const {write:transferWrite} = useWrite('transfer',{
   type:'ttoken',
   onSuccess(){
-  console.log('转账成功')
+  message.success('转账成功')
+    refetch()
+
   },
   onError(err){
   message.error(err)
@@ -230,7 +233,8 @@ const transferOK = ()=>{
 const {write} = useWrite('withdraw_liquidity_pool',{
   type:'ERC1229',
   onSuccess(value:any){
-    console.log('提现成功',value)
+    message.success('提现成功')
+    refetch()
   },
   onError(error:any){
     message.error(error)
@@ -258,7 +262,8 @@ const editUser = ref({
 const { write:baseInfoWrite } = useWrite('set_baseinfo',{
   type:'ERC1229',
   onSuccess(value:any){
-    console.log('修改成功',value)
+    message.success('修改成功')
+    refetch()
   },
   onError(error){
     message.error(error)
@@ -282,7 +287,8 @@ const systemDomRef = ref<InstanceType<typeof Form>>();
 const {write:systemWrite} = useWrite('set_longinfo',{
   type:'ERC1229',
   onSuccess(value:any){
-    console.log('修改成功',value)
+    message.success('修改成功')
+    refetch()
   },
   onError(error){
     message.error(error)
@@ -309,23 +315,15 @@ const noticeDomRef = ref<InstanceType<typeof Form>>();
 const {write:noticeWrite} = useWrite('set_otherinfo',{
   type:'ERC1229',
   onSuccess(value:any){
-    console.log('修改成功',value)
+    message.success('修改成功')
+    refetch()
   },
   onError(error){
     message.error(error)
   }
 })
 const noticeOnSubmit = ()=>{
-  noticeDomRef.value
-      .validate()
-      .then(() => {
-        noticeWrite([{
-          ...systemParams.value,
-          buy2parent_rate:ethers.parseEther(String(systemParams.value.buy2parent_rate)),
-          node2vip_add_rate:ethers.parseEther(String(systemParams.value.node2vip_add_rate)),
-          post_aggregate_airdrop_price:ethers.parseEther(String(systemParams.value.post_aggregate_airdrop_price)),
-        }])
-      })
+        noticeWrite([noticeParams.value])
 }
 const noticeReset = ()=>{
   noticeDomRef.value?.resetFields()
@@ -343,10 +341,13 @@ const {refetch} = useRead('getinfo',undefined,{
         node2vip_add_rate:getNumber(res.systeminfo?.longinfo,'node2vip_add_rate',true),
         post_aggregate_airdrop_price:getNumber(res.systeminfo?.longinfo,'post_aggregate_airdrop_price',true),
       }
-      noticeParams.value = res.systeminfo?.otherinfo
+
       editTokenAUNValue.value = getNumber(res,'stake_amount',true)
       editUser.value.number_user = getNumber(res.systeminfo.baseinfo,'number_user')
       editUser.value.merchant_add = res.systeminfo.baseinfo.merchant_add
+      noticeParams.value = {
+        ...res.systeminfo?.otherinfo
+      }
     }
   },
   onError(error){

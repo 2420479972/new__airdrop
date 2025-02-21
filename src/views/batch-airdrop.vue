@@ -40,10 +40,10 @@
     <a-form ref="formRef" :model="batch" :rules="rules">
       <div class="space-y-[25px]">
         <a-form-item name="token" label="空投代币地址">
-          <a-input v-model:value="batch['token']"></a-input>
+          <a-input v-model:value="batch['token']" placeholder="0x..."></a-input>
         </a-form-item>
         <a-form-item name="baseamount" label="空投数量">
-          <a-input-number class="w-full" v-model:value="batch['baseamount']"></a-input-number>
+          <a-input-number class="w-full" v-model:value="batch['baseamount']" placeholder="空投数量"></a-input-number>
         </a-form-item>
       </div>
     </a-form>
