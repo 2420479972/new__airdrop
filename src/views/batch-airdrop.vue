@@ -2,20 +2,19 @@
   <div class="w-full h-full p-[12px] bg-[#F4F5F7]">
     <div class="w-full p-[9px] bg-[#fff] rounded-[5px]">
       <div class="text-[#3B3D47] text-[10px]">批量空投</div>
+      <div class="mt-2"></div>
+      <div class="flex items-center gap-x-10 mb-5">
+        <a-button type="primary" @click="show">批量空投</a-button>
+      </div>
       <div class="mt-[12px] w-full">
-
-        <a-table :columns="nodeColumns" :data-source="nodeList" :scroll="{ x: 1300, y: 1000 }">
+        <a-table :columns="nodeColumns" :data-source="nodeList" :scroll="{ x: 1300, y: 1000 }" :row-selection="nodeSelection">
           <template #bodyCell="{ column, text}">
             <div class="w-full cursor-pointer h-full hover:text-blue-400" @click="clickNode(text?.[column.key])">
               {{text?.[column.key]}}
             </div>
           </template>
         </a-table>
-        <div class="mt-10"></div>
-        <div class="flex items-center gap-x-10 mb-5">
-          <a-button type="primary" @click="show">批量空投</a-button>
-        </div>
-        <a-table :columns="vipColumns" :data-source="tableData" :scroll="{ x: 1300, y: 1000 }" :row-selection="rowSelection" :loading="isLoading">
+        <a-table :columns="vipColumns" :data-source="tableData" :scroll="{ x: 1300, y: 1000 }" :row-selection="vipSelection" :loading="isLoading">
           <template #bodyCell="{ column, text}">
             <template  v-if="column?.render">
               {{column?.render(text?.[column.key])}}
@@ -128,11 +127,15 @@ const nodePage = ref([0,50])
 const {isLoading,error} =  useRead('get_node_list',nodePage,{
   type:'ERC1229',
  async onSuccess(res){
-    nodeList.value = res.map(item=>{
+    nodeList.value = res.map((item,index)=>{
       return {
-        node:item,
+        key: 'index' + index,
+        index:  index,
+        text:item,
+        node: item,
       }
     })
+   nodeVipParams.value[0] = res[0];
    refetch()
   },
   onError(error){
@@ -149,13 +152,25 @@ const clickNode = (address:string)=>{
 
 }
 
-const selectedList = ref([]);
-const rowSelection = ref({
+
+const nodeSelectedList = ref([]);
+const nodeSelection = ref({
   checkStrictly: true,
   selectedRowKeys:[],
   onChange: (selectedRowKeys: [], selectedRows: []) => {
-    rowSelection.value.selectedRowKeys = selectedRowKeys
-    selectedList.value = selectedRows;
+    nodeSelection.value.selectedRowKeys = selectedRowKeys;
+    console.log(selectedRows)
+    nodeSelectedList.value = selectedRows;
+  },
+});
+const vipSelectedList = ref([]);
+
+const vipSelection = ref({
+  checkStrictly: true,
+  selectedRowKeys:[],
+  onChange: (selectedRowKeys: [], selectedRows: []) => {
+    vipSelection.value.selectedRowKeys = selectedRowKeys
+    vipSelectedList.value = selectedRows;
   },
 });
 
@@ -180,7 +195,8 @@ const {write} = useWrite('platform_airdrop',{
   onSuccess(value: any) {
     message.success('空投发布成功')
     open.value = false
-    selectedList.value = [];
+    nodeSelectedList.value = [];
+    vipSelectedList.value = [];
     batchReset()
     refetch()
   },
@@ -194,7 +210,7 @@ const onSubmit = ()=>{
       .validate()
       .then(() => {
         write([
-          selectedList.value.map(item=>item.vip_address),
+          [...vipSelectedList.value.map(item=>item.vip_address),...nodeSelectedList.value.map(item=>item.node)],
           batch.value.token,
           parseEther(String(batch.value.baseamount))
         ])
@@ -203,8 +219,8 @@ const onSubmit = ()=>{
 
 
 const show = ()=>{
-  if(selectedList.value.length < 1){
-    message.error('请先选择节点')
+  if(vipSelectedList.value.length < 1 && nodeSelectedList.value.length < 1){
+    message.error('请先选择节点或者会员')
     return
   }
   open.value = true

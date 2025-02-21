@@ -37,36 +37,36 @@
     <template #extra>
       <a-button type="text">X</a-button>
     </template>
-    <a-form ref="formRef" :model="editData" :rules="rules">
+    <a-form ref="formRef" :model="editData['baseinfo']" :rules="rules">
       <div class="space-y-[25px]">
         <a-form-item name="time_start" label="开始时间">
-          <a-date-picker  format="YYYY-MM-DD HH:mm"  :show-time="{ format: 'HH:mm' }" class="w-full" v-model:value="editData['time_start']"/>
+          <a-date-picker  format="YYYY-MM-DD HH:mm"  :show-time="{ format: 'HH:mm' }" class="w-full" v-model:value="editData['baseinfo']['time_start']"/>
         </a-form-item>
         <a-form-item label="结束时间" name="time_end">
-          <a-date-picker :format="dateFormat" :show-time="{ format: 'HH:mm' }" class="w-full" v-model:value="editData['time_end']"/>
+          <a-date-picker :format="dateFormat" :show-time="{ format: 'HH:mm' }" class="w-full" v-model:value="editData['baseinfo']['time_end']"/>
         </a-form-item>
         <a-form-item name="token" label="空投代币">
-          <a-input v-model:value="editData['token']"></a-input>
+          <a-input v-model:value="editData['baseinfo']['token']"></a-input>
         </a-form-item>
         <a-form-item name="wallet" label="结束剩余接受地址">
-          <a-input v-model:value="editData['wallet']"></a-input>
+          <a-input v-model:value="editData['baseinfo']['wallet']"></a-input>
         </a-form-item>
         <a-form-item name="totalamount" label="总空投数量">
-          <a-input-number class="w-full" v-model:value="editData['totalamount']"></a-input-number>
+          <a-input-number class="w-full" v-model:value="editData['baseinfo']['totalamount']"></a-input-number>
         </a-form-item>
         <a-form-item name="base_amount" label="一份空投数量">
-          <a-input-number class="w-full" v-model:value="editData['base_amount']"></a-input-number>
+          <a-input-number class="w-full" v-model:value="editData['baseinfo']['base_amount']"></a-input-number>
         </a-form-item>
         <a-form-item label="已空投数量" name="already_received">
-          <a-input-number class="w-full" v-model:value="editData['already_received']"></a-input-number>
+          <a-input-number class="w-full" v-model:value="editData['baseinfo']['already_received']"></a-input-number>
         </a-form-item>
         <a-form-item label="审核开关" name="flag">
-          <a-switch  v-model:checked="editData['flag']"></a-switch>
+          <a-switch  v-model:checked="editData['baseinfo']['flag']"></a-switch>
         </a-form-item>
 
         <a-form-item name="info" label="详情">
           <a-textarea
-              v-model:value="editData['info']"
+              v-model:value="editData['baseinfo']['info']"
               placeholder="请输入详情"
               style="width: 860px;"
               :auto-size="{ minRows: 12, maxRows: 15 }"
@@ -96,6 +96,8 @@ import {message} from "ant-design-vue";
 const open = ref(false);
 const dateFormat = 'YYYY-MM-DD HH:mm';
 const editData = ref({
+  baseinfo:{},
+  index:undefined,
 });
 
 
@@ -126,17 +128,19 @@ const formRef = ref();
 
 const edit = (rowItem:any)=>{
   const baseInfo = rowItem.baseinfo
-  editData.value = {
+  console.log(rowItem)
+  editData.value.baseinfo = {
       ...rowItem.baseinfo,
       totalamount:getNumber(baseInfo.totalamount),
       base_amount:getNumber(baseInfo.base_amount),
       time_start:dayjs(formatTime(baseInfo.time_start).toString(),dateFormat),
       time_end:dayjs(formatTime(baseInfo.time_end).toString(),dateFormat),
-    already_received:getNumber(baseInfo.already_received)
+      already_received:getNumber(baseInfo.already_received)
   };
+  editData.value.index = rowItem.index;
   open.value = true;
 }
-const {write} = useWrite('post_aggregate_airdrop',{
+const {write} = useWrite('set_aggregate_airdrop',{
   type:'ERC1229',
   onSuccess: (result) => {
     message.success('发布空投成功')
@@ -151,15 +155,20 @@ const  onSubmit = () => {
       .validate()
       .then(() => {
         write([
-          {
-            ...editData.value,
-            time_end:BigInt(editData.value.time_end.unix()),
-            time_start:BigInt(editData.value.time_start.unix()),
-            already_received:parseEther(String(editData.value.already_received)),
-            totalamount:parseEther(String(editData.value.totalamount)),
-            base_amount:parseEther(String(editData.value.base_amount)),
-            already_received:parseEther(String(editData.value.already_received))
-          }
+          [
+            {
+              baseinfo:{
+                ...editData.value['baseinfo'],
+                time_end:BigInt(editData.value['baseinfo'].time_end.unix()),
+                time_start:BigInt(editData.value['baseinfo'].time_start.unix()),
+                already_received:parseEther(String(editData.value['baseinfo'].already_received)),
+                totalamount:parseEther(String(editData.value['baseinfo'].totalamount)),
+                base_amount:parseEther(String(editData.value['baseinfo'].base_amount)),
+                already_received:parseEther(String(editData.value['baseinfo'].already_received))
+              },
+              index: editData.value['index'],
+            },
+          ]
         ])
       })
 };

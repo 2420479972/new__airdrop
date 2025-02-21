@@ -103,7 +103,7 @@
         <a-input v-model:value="editUser['merchant_add']" placeholder="请输入商户地址" class="w-full"></a-input>
       </a-form-item>
       <a-form-item label="平台用户">
-        <a-input-number v-model:value="editUser['number_user']" placeholder="请输入平台用户" class="w-full"></a-input-number>
+        <a-input-number :min="1" v-model:value="editUser['number_user']" placeholder="请输入平台用户" class="w-full"></a-input-number>
       </a-form-item>
     </div>
   </a-modal>
@@ -267,7 +267,7 @@ const editUserNumberOk = ()=>{
   baseInfoWrite([
     {
       merchant_add:editUser.value.merchant_add,
-      number_user: parseEther(String(editUser.value.number_user)),
+      number_user: String(editUser.value.number_user)
     },
   ])
 }

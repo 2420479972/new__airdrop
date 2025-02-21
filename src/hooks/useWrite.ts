@@ -33,14 +33,13 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
         await writeContractAsync({
             abi: ABI97[options.type].abi,
             address: (ABI97[options.type].address) as any,
-            
             ...params
         }, {
             onSuccess: async (value) => {
                 options.onSuccess(value)
             },
-            onError: async (error) => {
-                options.onError?.(error)
+            onError: async (_error) => {
+                options.onError?.(_error)
             },
         })
     }
