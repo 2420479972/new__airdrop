@@ -16,7 +16,6 @@
       <a-layout-header class="header">
         <div class="px-[8px] flex items-center h-full gap-x-[5px]">
           <a-input  readonly class="w-[170px] h-[21px] rounded-md border-solid border-[1px] border-[#AEADBF] px-[6px] text-[8px]" :value="formatAddress(addressStore.address)" :placeholder="'请链接你的钱包！'"/>
-<!--          <a-button type="primary" ghost class="w-[72px] h-[21px] rounded-md border-solid border-[1px] text-[8px] border-[#4D6AEA] text-center text-[#4D6AEA] cursor-pointer" @click="connectPurse">链接空投地址</a-button>-->
           <a-button type="primary" ghost class="w-[72px] h-[21px] rounded-md border-solid border-[1px] text-[8px] border-[#4D6AEA] text-center text-[#4D6AEA] cursor-pointer" @click="connectPurse">链接钱包</a-button>
         </div>
       </a-layout-header>
@@ -37,7 +36,7 @@
 import {ref} from 'vue';
 import {menuList} from "@/routes";
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
-import {useUserPurse} from "@/hooks/useUserPurse.ts";
+import {useEffectWagmi} from "@/hooks/useUserPurse.ts";
 import {useAddressStore} from "@/store/useAddressStore.ts";
 import {useAccountEffect} from "@wagmi/vue";
 import {formatAddress} from "utils/base.ts";
@@ -60,24 +59,29 @@ watch(()=>route,(newVal)=>{
   immediate:true,
 })
 
-const {connectPurse} = useUserPurse();
+const {connectPurse} = useEffectWagmi({
+  onSuccess(address:string) {
+    message.success('钱包连接成功！')
+    addressStore.address = address
+
+  }
+});
 
 
 const menuSelected = (menu:any)=>{
   router.push(menu.key)
 }
 useAccountEffect({
-  onConnect: (wallet) => {
-    message.success('钱包连接成功！')
-    addressStore.address = wallet.address
-  },
+
   onError: (error) => {
     addressStore.address = ""
+    addressStore.linked = false;
     message.error(error)
   },
   onDisconnect:() => {
     message.success('钱包断开连接成功！')
   addressStore.address = ""
+    addressStore.linked = false;
 },
 })
 

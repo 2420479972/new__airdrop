@@ -115,27 +115,27 @@
       <div class="mt-[15px] w-full">
         <div class="text-[#3B3D47] text-[8px] flex items-center">
           <a-form-item label="路由地址" name="tokenRouter">
-            <a-input  v-model:value="systemParams['tokenRouter']"  placeholder="请输入价格" style="width: 180px"/>
+            <a-input  v-model:value="systemParams['tokenRouter']"  placeholder="请输入路由地址" style="width: 180px"/>
           </a-form-item>
         </div>
         <div class="text-[#3B3D47] text-[8px] flex items-center">
           <a-form-item label="付费Token地址" name="usdt">
-            <a-input  v-model:value="systemParams['usdt']"  placeholder="请输入价格" style="width: 180px"/>
+            <a-input  v-model:value="systemParams['usdt']"  placeholder="请输入付费Token地址" style="width: 180px"/>
           </a-form-item>
         </div>
         <div class="text-[#3B3D47] text-[8px] flex items-center">
           <a-form-item label="推荐获得佣金比例" name="buy2parent_rate">
-            <a-input-number  v-model:value="systemParams['buy2parent_rate']"  placeholder="请输入价格" style="width: 180px"/>
+            <a-input-number  v-model:value="systemParams['buy2parent_rate']"  placeholder="请输入推荐获得佣金比例" style="width: 180px"/>
           </a-form-item>
         </div>
         <div class="text-[#3B3D47] text-[8px] flex items-center">
           <a-form-item label="节点推会员累加奖励比例" name="node2vip_add_rate">
-            <a-input-number  v-model:value="systemParams['node2vip_add_rate']"  placeholder="请输入价格" style="width: 180px"/>
+            <a-input-number  v-model:value="systemParams['node2vip_add_rate']"  placeholder="请输入节点推会员累加奖励比例" style="width: 180px"/>
           </a-form-item>
         </div>
         <div class="text-[#3B3D47] text-[8px] flex items-center">
           <a-form-item label="提交空投项目的价格" name="post_aggregate_airdrop_price">
-            <a-input-number  v-model:value="systemParams['post_aggregate_airdrop_price']"  placeholder="请输入价格" style="width: 180px"/>
+            <a-input-number  v-model:value="systemParams['post_aggregate_airdrop_price']"  placeholder="请输入提交空投项目的价格" style="width: 180px"/>
           </a-form-item>
         </div>
       </div>
@@ -192,6 +192,7 @@ import {useWrite} from "@/hooks/useWrite.ts";
 import {ethers} from "ethers";
 import {Form, message} from "ant-design-vue";
 import {parseEther} from "viem";
+import {useEffectWagmi} from "@/hooks/useUserPurse.ts";
 const userInfo = ref<{
   liquidity?:BigInt,
   number_user?:BigInt,
@@ -247,7 +248,7 @@ const editTokenAUNValue = ref("0");
 // 修改平台用户
 const editUserNumberShow = ref(false);
 const editUser = ref({
-  merchant_add:1,
+  merchant_add:'',
   number_user:''
 });
 
@@ -330,7 +331,7 @@ const noticeReset = ()=>{
   noticeDomRef.value?.resetFields()
 }
 
-useRead('getinfo',undefined,{
+const {refetch} = useRead('getinfo',undefined,{
   type:'ERC1229',
   needAddress:true,
   onSuccess:(res)=>{
@@ -353,7 +354,12 @@ useRead('getinfo',undefined,{
   }
 })
 
-
+useEffectWagmi({
+  async onSuccess() {
+    await nextTick();
+    refetch();
+  }
+});
 
 
 

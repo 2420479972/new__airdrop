@@ -31,7 +31,7 @@
       :closable="false"
       :size="524"
       placement="right"
-      title="发布空投"
+      title="空投审核"
       destroy-on-close
   >
     <template #extra>
