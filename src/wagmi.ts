@@ -27,7 +27,7 @@ export const DEVnet = {
 export const config = createConfig({
   chains: [
     // ZMnet,
-    // bsc,
+    bsc,
     bscTestnet
     // ,localhost,DEVnet
   ],
@@ -37,7 +37,7 @@ export const config = createConfig({
   storage: createStorage({ storage: localStorage, key: 'vite-vue' }),
   transports: {
     // [ZMnet.id]: http(),
-    // [bsc.id]: http(),
+    [bsc.id]: http(),
     [bscTestnet.id]: http(),
     // [DEVnet.id]: http(),
   },

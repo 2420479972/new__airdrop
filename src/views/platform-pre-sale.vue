@@ -31,11 +31,13 @@ import {Rule} from "postcss";
 import {useRead} from "@/hooks/useRead.ts";
 import {formatTime, getNumber} from "utils/base.ts";
 import dayjs from "dayjs";
-import {ABI97} from "@/abis/abi.ts";
+import {ABI} from "@/abis/abi.ts";
 import {useWrite} from "@/hooks/useWrite.ts";
 import {parseEther} from "viem";
 import {message} from "ant-design-vue";
+import {useChainId} from "@wagmi/vue";
 
+const chainId = useChainId();
 
 const disabled = ref(true);
 
@@ -108,7 +110,7 @@ const { refetch } = useRead('platform_subscription', undefined, {
 })
 
 const allowance = ref(0);
-const allowanceParams = ref([ABI97['ERC1229'].address])
+const allowanceParams = ref([ABI[chainId.value]['ERC1229'].address])
 useRead('allowance', allowanceParams, {
   type: 'ttoken',
   needAddress: true,
@@ -163,7 +165,7 @@ const onSubmit = () => {
         const approveValue = platformParams.value?.totalamount - allowance.value;
         if (approveValue > 0) {
           ApproveWrite([
-              ABI97['ERC1229'].address,
+              ABI[chainId.value]['ERC1229'].address,
               parseEther(String(approveValue)),
           ])
         }else{

@@ -1,5 +1,5 @@
-import {ABI97, type ABIERCType, type ABIListType} from "../abis/abi.ts";
-import {useWriteContract} from "@wagmi/vue";
+import {ABI, type ABIERCType, type ABIListType} from "../abis/abi.ts";
+import {useChainId, useWriteContract} from "@wagmi/vue";
 import {useAddressStore} from "store/useAddressStore.ts";
 
 export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC1229'>, options: {
@@ -10,6 +10,8 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
     onError?(error: any): void,
 
 }) => {
+    const chainId = useChainId();
+    console.log(chainId);
     const addressStore = useAddressStore()
     const {writeContractAsync, isPending,error} = useWriteContract()
     const write = async (paramsList: any[]) => {
@@ -31,8 +33,8 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
             }
         }
         await writeContractAsync({
-            abi: ABI97[options.type].abi,
-            address: (ABI97[options.type].address) as any,
+            abi: ABI[chainId.value][options.type].abi,
+            address: (ABI[chainId.value][options.type].address) as any,
             ...params
         }, {
             onSuccess: async (value) => {

@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@web3-storage/w3up-client": "^17.1.2",
+    "files-from-path": "^1.1.1",
     "@tanstack/vue-query": "^5.59.17",
     "@types/node": "^22.8.5",
     "@vee-validate/zod": "^4.15.0",

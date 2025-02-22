@@ -1,5 +1,5 @@
-import {ABI97, type ABIERCType, type ABIListType} from "../abis/abi.ts";
-import {useAccountEffect, useReadContract} from "@wagmi/vue";
+import {ABI, type ABIERCType, type ABIListType} from "../abis/abi.ts";
+import {useAccountEffect, useChainId, useReadContract} from "@wagmi/vue";
 import {type Ref, watch} from "vue";
 import {useAddressStore} from "store/useAddressStore.ts";
 
@@ -10,11 +10,12 @@ export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'
     onSuccess(value:any):void,
     onError?(error:any):void,
 })=>{
+    const chainId = useChainId();
     const addressStore = useAddressStore()
     let params:any = {
         functionName,
-        abi: ABI97[options.type].abi,
-        address: (ABI97[options.type].address) as any,
+        abi: ABI[chainId.value][options.type].abi,
+        address: (ABI[chainId.value][options.type].address) as any,
     };
     if(options.needAddress && addressStore.address != ""){
         params = {
