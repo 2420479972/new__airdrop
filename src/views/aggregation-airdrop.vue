@@ -161,7 +161,6 @@ const  onSubmit = () => {
                 ...editData.value['baseinfo'],
                 time_end:BigInt(editData.value['baseinfo'].time_end.unix()),
                 time_start:BigInt(editData.value['baseinfo'].time_start.unix()),
-                already_received:parseEther(String(editData.value['baseinfo'].already_received)),
                 totalamount:parseEther(String(editData.value['baseinfo'].totalamount)),
                 base_amount:parseEther(String(editData.value['baseinfo'].base_amount)),
                 already_received:parseEther(String(editData.value['baseinfo'].already_received))
