@@ -113,7 +113,8 @@ const rules: Record<string, Rule[]> = {
 const {write} = useWrite('set_product_info',{
   type:'ERC1229',
   onSuccess(value: any) {
-    console.log('set_product_info success', value)
+    message.success('发布成功')
+    refetch()
   },
   onError(error) {
     message.error(error)
@@ -146,7 +147,7 @@ const vipTypeList = ref<{
 }[]>([])
 
 
-useRead('get_product_infos',undefined,{
+const {refetch} =  useRead('get_product_infos',undefined,{
   type:'ERC1229',
   onSuccess:(res)=>{
     console.log(res)
