@@ -66,6 +66,13 @@ const vipList =  {
   ambassador:'ambassador',
 }
 
+
+enum vipNode {
+  node = 0,
+  vip = 1,
+  ambassador = 2,
+}
+
 const selectType = ref('node');
 
 const showItem = computed(()=>{
@@ -119,7 +126,7 @@ const  onSubmit = () => {
       .validate()
       .then(() => {
         write([
-          vipList[selectType.value],
+          vipNode[selectType.value],
           {
             time_end:BigInt(buyNodeParams.value.time_end.unix()),
             time_start:BigInt(buyNodeParams.value.time_start.unix()),
