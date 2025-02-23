@@ -2,8 +2,8 @@
   <div class="w-full h-full p-[12px] bg-[#F4F5F7]">
     <div class="w-full p-[9px] bg-[#fff] rounded-[5px]">
       <div class="flex items-center gap-x-[5px]">
-        <template v-for="item in vipTypeList" :key="item.info">
-          <div class="px-[11px] py-[5px] rounded-[3px] text-[7px] text-[#fff] cursor-pointer" @click="selectType = item.info" :style="{background:selectType == item.info ? '#4D6AEA' : '#E2E5EA',color:selectType == item.info?'#fff':'#181818'}">{{vipType[item.info]}}</div>
+        <template v-for="item in Object.keys(vipList)" :key="item.info">
+          <div class="px-[11px] py-[5px] rounded-[3px] text-[7px] text-[#fff] cursor-pointer" @click="selectType = item" :style="{background:selectType == item ? '#4D6AEA' : '#E2E5EA',color:selectType == item?'#fff':'#181818'}">{{vipType[item]}}</div>
         </template>
       </div>
       {{showItem}}
@@ -60,13 +60,13 @@ enum vipType {
   ambassador = "大使"
 }
 
-enum vip {
-  node,
-  vip,
-  ambassador,
+const vipList =  {
+  node:'node',
+  vip:'vip',
+  ambassador:'ambassador',
 }
 
-const selectType = ref('');
+const selectType = ref('node');
 
 const showItem = computed(()=>{
 
@@ -119,12 +119,12 @@ const  onSubmit = () => {
       .validate()
       .then(() => {
         write([
-          vip[selectType.value],
+          vipList[selectType.value],
           {
             time_end:BigInt(buyNodeParams.value.time_end.unix()),
             time_start:BigInt(buyNodeParams.value.time_start.unix()),
             price:parseEther(String(buyNodeParams.value.price)),
-            info:selectType.value
+            info:vipList[selectType.value]
           }
         ])
       })
@@ -136,32 +136,20 @@ const vipTypeList = ref<{
   price:BigInt,
   time_end: string,
   time_start: string,
-
 }[]>([])
 
 
 useRead('get_product_infos',undefined,{
   type:'ERC1229',
   onSuccess:(res)=>{
+    console.log(res)
     vipTypeList.value = res;
-    selectType.value = res[0].info;
+    selectType.value = res[0].info
   },
   onError(error){
     message.error(error)
   }
 })
-
-
-const buyCommodity = ()=>{
-  useWrite(writeContract,'buy',[selectType.value],{
-    onSuccess:(res)=>{
-      console.log('buy success',res)
-    },
-    onError(error){
-      message.error(error)
-    }
-  })
-}
 
 </script>
 

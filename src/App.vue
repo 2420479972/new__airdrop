@@ -16,7 +16,12 @@
       <a-layout-header class="header">
         <div class="px-[8px] flex items-center h-full gap-x-[5px]">
           <a-input  readonly class="w-[170px] h-[21px] rounded-md border-solid border-[1px] border-[#AEADBF] px-[6px] text-[8px]" :value="formatAddress(addressStore.address)" :placeholder="'请链接你的钱包！'"/>
-          <a-button type="primary" ghost class="w-[72px] h-[21px] rounded-md border-solid border-[1px] text-[8px] border-[#4D6AEA] text-center text-[#4D6AEA] cursor-pointer" @click="connectPurse">链接钱包</a-button>
+          <template v-if="addressStore.address == ''">
+            <a-button type="primary" ghost class="w-[72px] h-[21px] rounded-md border-solid border-[1px] text-[8px] border-[#4D6AEA] text-center text-[#4D6AEA] cursor-pointer" @click="connectPurse">链接钱包</a-button>
+          </template>
+          <template v-else>
+            <a-button type="primary" ghost class="w-[72px] h-[21px] rounded-md border-solid border-[1px] text-[8px] border-[#4D6AEA] text-center text-[#4D6AEA] cursor-pointer" @click="disconnectPurse">断开链接</a-button>
+          </template>
         </div>
       </a-layout-header>
       <a-layout-content
@@ -59,7 +64,7 @@ watch(()=>route,(newVal)=>{
   immediate:true,
 })
 
-const {connectPurse} = useEffectWagmi({
+const {connectPurse,disconnectPurse} = useEffectWagmi({
   onSuccess(address:string) {
     message.success('钱包连接成功！')
     addressStore.address = address
