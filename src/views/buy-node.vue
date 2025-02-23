@@ -38,7 +38,7 @@
 </a-form>
 
       <div class="flex items-center justify-end gap-x-[10px] mt-[15px]">
-        <a-button type="primary" @click="onSubmit">确认发布</a-button>
+        <a-button type="primary" @click="onSubmit" :loading="isPending">确认发布</a-button>
       </div>
     </div>
   </div>
@@ -47,7 +47,6 @@
 <script setup lang="ts">
 import {useRead} from "@/hooks/useRead.ts";
 import {useWrite} from "@/hooks/useWrite.ts";
-import {useWriteContract} from "@wagmi/vue";
 import {Rule} from "postcss";
 import dayjs from "dayjs";
 import {formatTime, getNumber} from "utils/base.ts";
@@ -73,13 +72,14 @@ enum vipNode {
   ambassador = 2,
 }
 
-const selectType = ref('node');
+const selectType = ref('');
 
 const showItem = computed(()=>{
 
 })
 
 watch(()=>selectType.value,(newVal)=>{
+  console.log(newVal,'123123123')
   const selectItem = vipTypeList.value.find(item=>item.info == newVal) || {};
   buyNodeParams.value =   {
     ...selectItem,
@@ -110,7 +110,7 @@ const rules: Record<string, Rule[]> = {
 };
 
 
-const {write} = useWrite('set_product_info',{
+const {write,isPending} = useWrite('set_product_info',{
   type:'ERC1229',
   onSuccess(value: any) {
     message.success('发布成功')
@@ -152,7 +152,8 @@ const {refetch} =  useRead('get_product_infos',undefined,{
   onSuccess:(res)=>{
     console.log(res)
     vipTypeList.value = res;
-    selectType.value = res[0].info
+    selectType.value = res[0].info == '' ? 'node' : res[0].info
+
   },
   onError(error){
     message.error(error)

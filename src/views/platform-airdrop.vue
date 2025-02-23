@@ -63,7 +63,7 @@
     <template #footer>
       <div class="flex items-center justify-end gap-x-[10px]">
         <a-button style="margin-right: 8px">取消</a-button>
-        <a-button type="primary" @click="onSubmit">确认</a-button>
+        <a-button type="primary" @click="onSubmit" :loading="isPending">确认</a-button>
       </div>
 
     </template>
@@ -128,7 +128,7 @@ const {refetch} = useRead('get_platform_airdrops', page, {
   }
 })
 
-const {write} = useWrite('set_platform_airdrop', {
+const {write,isPending} = useWrite('set_platform_airdrop', {
   type: 'ERC1229',
   onSuccess: (result) => {
     message.success('提交成功')

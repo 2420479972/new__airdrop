@@ -66,7 +66,7 @@
     <template #footer>
       <div class="flex items-center justify-end gap-x-[10px]">
         <a-button style="margin-right: 8px">取消</a-button>
-        <a-button type="primary" @click="onSubmit">确认</a-button>
+        <a-button type="primary" @click="onSubmit" :loading="isPending">确认</a-button>
       </div>
 
     </template>
@@ -154,7 +154,7 @@ const rules: Record<string, Rule[]> = {
   },],
 };
 const open = ref(false);
-const {write} = useWrite('set_aggregate_alliance',{
+const {write,isPending} = useWrite('set_aggregate_alliance',{
   type:'ERC1229',
   onSuccess(res){
     message.success('操作成功')

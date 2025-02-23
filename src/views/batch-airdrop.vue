@@ -51,7 +51,7 @@
     <template #footer>
       <div class="flex items-center justify-end gap-x-[10px]">
         <a-button style="margin-right: 8px" @click="batchReset">取消</a-button>
-        <a-button type="primary" @click="onSubmit">确认</a-button>
+        <a-button type="primary" @click="onSubmit" :loading="isPending">确认</a-button>
       </div>
 
     </template>
@@ -190,7 +190,7 @@ const batchReset = ()=>{
 }
 
 
-const {write} = useWrite('platform_airdrop',{
+const {write,isPending} = useWrite('platform_airdrop',{
   type:'ERC1229',
   onSuccess(value: any) {
     message.success('空投发布成功')

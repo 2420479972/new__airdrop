@@ -19,7 +19,7 @@
         </a-form>
         <div class="flex items-center gap-x-5">
           <a-button type="link" @click="checkEdit">编辑</a-button>
-          <a-button type="primary" @click="onSubmit" :disabled="disabled">提交</a-button>
+          <a-button type="primary" @click="onSubmit" :disabled="disabled" :loading="isPending">提交</a-button>
         </div>
       </div>
     </div>
@@ -136,7 +136,7 @@ const {write:ApproveWrite} = useWrite('approve',{
   }
 })
 
-const {write:subscriptionWrite} = useWrite('set_platform_subscription',{
+const {write:subscriptionWrite,isPending} = useWrite('set_platform_subscription',{
   type: 'ERC1229',
   onSuccess(data) {
     message.success('提交成功')
@@ -163,6 +163,7 @@ const onSubmit = () => {
           already_received: parseEther(String(platformParams.value.already_received)),
         }
         const approveValue = platformParams.value?.totalamount - allowance.value;
+        console.log(platformParams.value?.totalamount,allowance.value);
         if (approveValue > 0) {
           ApproveWrite([
               ABI[chainId.value]['ERC1229'].address,

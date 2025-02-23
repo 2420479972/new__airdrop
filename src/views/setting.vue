@@ -87,17 +87,17 @@
       </div>
     </div>
   </div>
-  <a-modal v-model:open="transferShow" :width="300"  title="请输入你的转入金额" @ok="transferOK" destroyOnClose>
+  <a-modal v-model:open="transferShow" :width="300"  title="请输入你的转入金额" @ok="transferOK" destroyOnClose :confirm-loading="transferPending">
     <a-form-item label="转入金额">
       <a-input-number v-model:value="transferValue" :min="0.000000001" placeholder="请输入你的转入金额" class="w-full"></a-input-number>
     </a-form-item>
   </a-modal>
-  <a-modal v-model:open="takeOutShow" :width="300"  title="请输入你的取款金额" @ok="takeOutOK" destroyOnClose>
+  <a-modal v-model:open="takeOutShow" :width="300"  title="请输入你的取款金额" @ok="takeOutOK" destroyOnClose :confirm-loading="withdrawPending">
     <a-form-item label="取款金额">
       <a-input-number v-model:value="takeOutValue" :min="getNumber(userInfo,'liquidity',true) > 0 ? 0.00000000000001 : 0" :max="getNumber(userInfo,'liquidity',true)" :placeholder="'最大取款金额为' + getNumber(userInfo,'liquidity',true)"  class="w-full"></a-input-number>
     </a-form-item>
   </a-modal>
-  <a-modal v-model:open="editUserNumberShow" :width="300"  title="编辑平台用户" @ok="editUserNumberOk" destroyOnClose>
+  <a-modal v-model:open="editUserNumberShow" :width="300"  title="编辑平台用户" @ok="editUserNumberOk" destroyOnClose :confirm-loading="baseInfoPending">
     <div class="space-y-3">
       <a-form-item label="商户地址">
         <a-input v-model:value="editUser['merchant_add']" placeholder="0x....." class="w-full"></a-input>
@@ -110,7 +110,7 @@
 <!--  <a-modal v-model:open="editTokenAUNShow" :width="300"  title="编辑代币AUN" @ok="editTokenAUNOk" destroyOnClose>-->
 <!--    <a-input-number v-model:value="editTokenAUNValue" placeholder="请输入代币AUN" class="w-full"></a-input-number>-->
 <!--  </a-modal>-->
-  <a-modal v-model:open="systemShow" title="编辑系统参数" @ok="systemOnSubmit" destroyOnClose @cancel="systemReset">
+  <a-modal v-model:open="systemShow" title="编辑系统参数" @ok="systemOnSubmit" destroyOnClose @cancel="systemReset" :confirm-loading="systemPending">
     <a-form :model="systemParams" ref="systemDomRef">
       <div class="mt-[15px] w-full">
         <div class="text-[#3B3D47] text-[8px] flex items-center">
@@ -149,7 +149,7 @@
   </a-modal>
 
 
-  <a-modal v-model:open="noticeShow" title="平台通知设置" @ok="noticeOnSubmit"  @cancel="noticeReset">
+  <a-modal v-model:open="noticeShow" title="平台通知设置" @ok="noticeOnSubmit"  @cancel="noticeReset" :confirm-loading="otherPending">
       <div class="mt-[15px] w-full">
         <div class="text-[#3B3D47] text-[8px] flex items-center">
           <a-form-item label="通知" name="notice">
@@ -211,7 +211,7 @@ const takeOutValue = ref("");
 const systemShow= ref(false);
 const noticeShow = ref(false);
 
-const {write:transferWrite} = useWrite('transfer',{
+const {write:transferWrite,isPending:transferPending} = useWrite('transfer',{
   type:'ttoken',
   onSuccess(){
   message.success('转账成功')
@@ -230,7 +230,7 @@ const transferOK = ()=>{
 }
 
 
-const {write} = useWrite('withdraw_liquidity_pool',{
+const {write,isPending:withdrawPending} = useWrite('withdraw_liquidity_pool',{
   type:'ERC1229',
   onSuccess(value:any){
     message.success('提现成功')
@@ -259,7 +259,7 @@ const editUser = ref({
 
 
 
-const { write:baseInfoWrite } = useWrite('set_baseinfo',{
+const { write:baseInfoWrite,isPending:baseInfoPending } = useWrite('set_baseinfo',{
   type:'ERC1229',
   onSuccess(value:any){
     message.success('修改成功')
@@ -284,7 +284,7 @@ const systemParams = ref({});
 const systemDomRef = ref<InstanceType<typeof Form>>();
 
 
-const {write:systemWrite} = useWrite('set_longinfo',{
+const {write:systemWrite,isPending:systemPending} = useWrite('set_longinfo',{
   type:'ERC1229',
   onSuccess(value:any){
     message.success('修改成功')
@@ -304,6 +304,7 @@ const systemOnSubmit = ()=>{
           node2vip_add_rate:ethers.parseEther(String(systemParams.value.node2vip_add_rate)),
           post_aggregate_airdrop_price:ethers.parseEther(String(systemParams.value.post_aggregate_airdrop_price)),
         }])
+
       })
 }
 const systemReset = ()=>{
@@ -312,7 +313,7 @@ const systemReset = ()=>{
 
 const noticeParams = ref({});
 const noticeDomRef = ref<InstanceType<typeof Form>>();
-const {write:noticeWrite} = useWrite('set_otherinfo',{
+const {write:noticeWrite,isPending:otherPending} = useWrite('set_otherinfo',{
   type:'ERC1229',
   onSuccess(value:any){
     message.success('修改成功')

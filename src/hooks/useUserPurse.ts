@@ -14,7 +14,11 @@ export const useEffectWagmi = (options:{ onSuccess(address: `0x${string}` | unde
         disconnect();
         addressStore.address = "";
     }
-
+    onMounted(()=>{
+        if(status.value === 'disconnected'){
+            addressStore.address = ""
+        }
+    })
     watch(()=>status.value,(newVal)=>{
         if(newVal === 'connected' && addressStore.address !== "" && !addressStore.linked){
             options.onSuccess(address.value)
