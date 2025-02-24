@@ -7,14 +7,14 @@
         <a-button type="primary" @click="show">批量空投</a-button>
       </div>
       <div class="mt-[12px] w-full">
-        <a-table :columns="nodeColumns" :data-source="nodeList" :scroll="{ x: 1300, y: 1000 }" :row-selection="nodeSelection">
+        <a-table :columns="nodeColumns" :data-source="nodeList" :scroll="{ x: 1300, y: 1000 }" :row-selection="nodeSelection"  :loading="nodeLoading">
           <template #bodyCell="{ column, text}">
             <div class="w-full cursor-pointer h-full hover:text-blue-400" @click="clickNode(text?.[column.key])">
               {{text?.[column.key]}}
             </div>
           </template>
         </a-table>
-        <a-table :columns="vipColumns" :data-source="tableData" :scroll="{ x: 1300, y: 1000 }" :row-selection="vipSelection" :loading="isLoading">
+        <a-table :columns="vipColumns" :data-source="tableData" :scroll="{ x: 1300, y: 1000 }" :row-selection="vipSelection" :loading="vipLoading">
           <template #bodyCell="{ column, text}">
             <template  v-if="column?.render">
               {{column?.render(text?.[column.key])}}
@@ -88,12 +88,10 @@ const vipColumns = [
 ]
 const tableData = ref([]);
 const nodeList = ref([])
-const nodeVipParams = ref(["",0,50])
 
-
-
-
-const {refetch,data} = useRead('get_nodevipinfo',nodeVipParams,{
+const {refetch,data,setParams,isLoading:vipLoading} = useRead('get_nodevipinfo',{
+  autoRun:false,
+  initParams:["",0,50],
   type:'ERC1229',
   onSuccess(value: any) {
     tableData.value = value.vips.map((item: any, index: number) => {
@@ -123,8 +121,8 @@ watch(()=>data.value,(newVal)=>{
   deep: true,
 })
 
-const nodePage = ref([0,50])
-const {isLoading,error} =  useRead('get_node_list',nodePage,{
+const {isLoading:nodeLoading} =  useRead('get_node_list',{
+  initParams:[0,50],
   type:'ERC1229',
  async onSuccess(res){
     nodeList.value = res.map((item,index)=>{
@@ -135,8 +133,7 @@ const {isLoading,error} =  useRead('get_node_list',nodePage,{
         node: item,
       }
     })
-   nodeVipParams.value[0] = res[0];
-   refetch()
+   setParams([res[0],0,50])
   },
   onError(error){
     message.error(error)
@@ -144,12 +141,7 @@ const {isLoading,error} =  useRead('get_node_list',nodePage,{
 })
 
 const clickNode = (address:string)=>{
-  if(nodeVipParams.value[0] == address) return;
-  nodeVipParams.value[0] = address
-  refetch({
-    throwOnError:true
-  })
-
+  setParams([address,0,50])
 }
 
 

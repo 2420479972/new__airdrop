@@ -6,7 +6,7 @@
 <!--        <a-button type="primary" @click="open=true">发布空投</a-button>-->
       </div>
       <div class="mt-[12px] w-full">
-        <a-table :columns="columns" :data-source="data" :scroll="{ x: 1300, y: 1000 }">
+        <a-table :columns="columns" :data-source="data" :scroll="{ x: 1300, y: 1000 }" :loading="isLoading">
           <template #bodyCell="{ column, text}">
             <template v-if="column.key === 'action'">
               <a-button type="link" @click="edit(text)">编辑</a-button>
@@ -242,11 +242,10 @@ const columns = [
 
 const data = ref([]);
 
-const pages = ref([0,50])
-const {refetch} = useRead('get_aggregate_airdrops',pages,{
+const {refetch,isLoading} = useRead('get_aggregate_airdrops',{
+  initParams:[0,50],
   type:'ERC1229',
   onSuccess(res){
-    console.log(res)
     data.value = res
   }
 })

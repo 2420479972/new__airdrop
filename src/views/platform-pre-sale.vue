@@ -90,7 +90,7 @@ const formList = [
 formList.forEach((item)=>{
   rules[item.key] = [{required: true, message: '请输入' + item.label, trigger: 'change'}]
 })
-const { refetch } = useRead('platform_subscription', undefined, {
+const { refetch } = useRead('platform_subscription', {
   type:'ERC1229',
   onSuccess(data) {
     if (data.length > 0) {
@@ -110,8 +110,8 @@ const { refetch } = useRead('platform_subscription', undefined, {
 })
 
 const allowance = ref(0);
-const allowanceParams = ref([ABI[chainId.value]['ERC1229'].address])
-useRead('allowance', allowanceParams, {
+useRead('allowance', {
+  initParams:[ABI[chainId.value]['ERC1229'].address],
   type: 'ttoken',
   needAddress: true,
   onSuccess(data) {
@@ -162,6 +162,7 @@ const onSubmit = () => {
           totalamount: parseEther(String(platformParams.value.totalamount)),
           already_received: parseEther(String(platformParams.value.already_received)),
         }
+        console.log(sendParams);
         const approveValue = platformParams.value?.totalamount - allowance.value;
         console.log(platformParams.value?.totalamount,allowance.value);
         if (approveValue > 0) {

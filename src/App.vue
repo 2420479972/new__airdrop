@@ -15,8 +15,8 @@
     <a-layout>
       <a-layout-header class="header">
         <div class="px-[8px] flex items-center h-full gap-x-[5px]">
-          <a-input  readonly class="w-[170px] h-[21px] rounded-md border-solid border-[1px] border-[#AEADBF] px-[6px] text-[8px]" :value="formatAddress(addressStore.address)" :placeholder="'请链接你的钱包！'"/>
-          <template v-if="addressStore.address == ''">
+          <a-input  readonly class="w-[170px] h-[21px] rounded-md border-solid border-[1px] border-[#AEADBF] px-[6px] text-[8px]" :value="formatAddress(address)" :placeholder="'请链接你的钱包！'"/>
+          <template v-if="!address">
             <a-button type="primary" ghost class="w-[72px] h-[21px] rounded-md border-solid border-[1px] text-[8px] border-[#4D6AEA] text-center text-[#4D6AEA] cursor-pointer" @click="connectPurse">链接钱包</a-button>
           </template>
           <template v-else>
@@ -42,10 +42,11 @@ import {ref} from 'vue';
 import {menuList} from "@/routes";
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import {useEffectWagmi} from "@/hooks/useUserPurse.ts";
-import {useAddressStore} from "@/store/useAddressStore.ts";
-import {useAccountEffect} from "@wagmi/vue";
+import {useAccount, useAccountEffect} from "@wagmi/vue";
 import {formatAddress} from "utils/base.ts";
 import {message} from "ant-design-vue";
+
+const {address} = useAccount()
 
 const selectedKeys = ref<string[]>(['']);
 const collapsed = ref<boolean>(false);
@@ -54,7 +55,6 @@ const collapsed = ref<boolean>(false);
 const route = useRoute()
 const router =useRouter()
 
-const addressStore = useAddressStore()
 
 
 watch(()=>route,(newVal)=>{
@@ -65,10 +65,8 @@ watch(()=>route,(newVal)=>{
 })
 
 const {connectPurse,disconnectPurse} = useEffectWagmi({
-  onSuccess(address:string) {
+  onSuccess() {
     message.success('钱包连接成功！')
-    addressStore.address = address
-
   }
 });
 
@@ -79,14 +77,10 @@ const menuSelected = (menu:any)=>{
 useAccountEffect({
 
   onError: (error) => {
-    addressStore.address = ""
-    addressStore.linked = false;
     message.error(error)
   },
   onDisconnect:() => {
     message.success('钱包断开连接成功！')
-  addressStore.address = ""
-    addressStore.linked = false;
 },
 })
 

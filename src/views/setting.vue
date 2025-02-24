@@ -192,15 +192,11 @@ import {useWrite} from "@/hooks/useWrite.ts";
 import {ethers} from "ethers";
 import {Form, message} from "ant-design-vue";
 import {parseEther} from "viem";
-import {useEffectWagmi} from "@/hooks/useUserPurse.ts";
-
 const userInfo = ref<{
   liquidity?:BigInt,
   number_user?:BigInt,
   stake_amount?:BigInt,
 }>({});
-
-
 
 const transferShow = ref(false);
 const transferValue = ref("");
@@ -232,7 +228,7 @@ const transferOK = ()=>{
 
 const {write,isPending:withdrawPending} = useWrite('withdraw_liquidity_pool',{
   type:'ERC1229',
-  onSuccess(value:any){
+  onSuccess(){
     message.success('提现成功')
     refetch()
   },
@@ -246,7 +242,6 @@ const takeOutOK = ()=>{
   ])
 }
 
-const editTokenAUNShow = ref(false);
 const editTokenAUNValue = ref("0");
 
 // 修改平台用户
@@ -261,7 +256,7 @@ const editUser = ref({
 
 const { write:baseInfoWrite,isPending:baseInfoPending } = useWrite('set_baseinfo',{
   type:'ERC1229',
-  onSuccess(value:any){
+  onSuccess(){
     message.success('修改成功')
     refetch()
   },
@@ -315,7 +310,7 @@ const noticeParams = ref({});
 const noticeDomRef = ref<InstanceType<typeof Form>>();
 const {write:noticeWrite,isPending:otherPending} = useWrite('set_otherinfo',{
   type:'ERC1229',
-  onSuccess(value:any){
+  onSuccess(){
     message.success('修改成功')
     refetch()
   },
@@ -330,7 +325,8 @@ const noticeReset = ()=>{
   noticeDomRef.value?.resetFields()
 }
 
-const {refetch} = useRead('getinfo',undefined,{
+const {refetch} = useRead('getinfo',{
+  autoRun:false,
   type:'ERC1229',
   needAddress:true,
   onSuccess:(res)=>{
@@ -356,12 +352,8 @@ const {refetch} = useRead('getinfo',undefined,{
   }
 })
 
-useEffectWagmi({
-  async onSuccess() {
-    await nextTick();
-    refetch();
-  }
-});
+
+
 
 
 
