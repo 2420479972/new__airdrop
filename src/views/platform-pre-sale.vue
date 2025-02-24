@@ -9,7 +9,7 @@
           <div class="text-[#3B3D47] text-[8px]">
             <template v-for="item in formList" :key="item.label">
               <a-form-item :label="item.label" :name="item.key">
-                <a-input-number v-if="item.type == 'number'" v-model:value="platformParams[item.key]" :placeholder="'请输入' + item.label" style="width: 180px"/>
+                <a-input-number :min="item?.min || 0" v-if="item.type == 'number'" v-model:value="platformParams[item.key]" :placeholder="'请输入' + item.label" style="width: 180px"/>
                 <a-input v-if="!item.type" v-model:value="platformParams[item.key]" :placeholder="'请输入' + item.label" style="width: 180px"/>
                 <a-date-picker v-if="item.type == 'date'" v-model:value="platformParams[item.key]" :show-time="{ format: 'HH:mm' }"
                                format="YYYY-MM-DD HH:mm"/>
@@ -54,7 +54,8 @@ const formList = [
   {
     label:'总供应量',
     key:'totalamount',
-    type:"number"
+    type:"number",
+    min:1
   },
   {
     label:'上线价格',
@@ -78,7 +79,8 @@ const formList = [
   {
     label:'一份的数量',
     key:'baseamount',
-    type:"number"
+    type:"number",
+    min:1
   },
   {
     label:'一份的价格',
@@ -126,7 +128,7 @@ let sendParams:any = null
 const {write:ApproveWrite} = useWrite('approve',{
   type: 'ttoken',
   onSuccess(data) {
-    message.success('授权成功')
+    console.log(sendParams)
     subscriptionWrite([sendParams]);
 
   },
@@ -154,13 +156,13 @@ const onSubmit = () => {
       .then(() => {
          sendParams = {
           ...platformParams.value,
+           already_received: parseEther(String(platformParams.value.already_received)),
+           totalamount: parseEther(String(platformParams.value.totalamount)),
+           price: parseEther(String(platformParams.value.price)),
           time_start: BigInt(platformParams.value.time_start.unix()),
           time_end:BigInt(platformParams.value.time_end.unix()),
-          price: parseEther(String(platformParams.value.price)),
-          baseprice: parseEther(String(platformParams.value.baseprice)),
           baseamount: parseEther(String(platformParams.value.baseamount)),
-          totalamount: parseEther(String(platformParams.value.totalamount)),
-          already_received: parseEther(String(platformParams.value.already_received)),
+           baseprice: parseEther(String(platformParams.value.baseprice)),
         }
         const approveValue = platformParams.value?.totalamount - allowance.value;
         console.log(platformParams.value?.totalamount,allowance.value);
@@ -170,6 +172,7 @@ const onSubmit = () => {
               parseEther(String(approveValue)),
           ])
         }else{
+          console.log(sendParams)
           subscriptionWrite([sendParams]);
         }
       })
