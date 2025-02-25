@@ -79,7 +79,6 @@ const showItem = computed(()=>{
 })
 
 watch(()=>selectType.value,(newVal)=>{
-  console.log(newVal,'123123123')
   const selectItem = vipTypeList.value.find(item=>item.info == newVal) || {};
   buyNodeParams.value =   {
     ...selectItem,
@@ -113,6 +112,7 @@ const rules: Record<string, Rule[]> = {
 const {write,isPending} = useWrite('set_product_info',{
   type:'ERC1229',
   onSuccess(value: any) {
+    console.log(value)
     message.success('发布成功')
     refetch()
   },
@@ -147,7 +147,7 @@ const vipTypeList = ref<{
 }[]>([])
 
 
-const {refetch} =  useRead('get_product_infos',undefined,{
+const {refetch} =  useRead('get_product_infos',{
   type:'ERC1229',
   onSuccess:(res)=>{
     console.log(res)

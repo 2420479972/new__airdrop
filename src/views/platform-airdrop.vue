@@ -8,7 +8,7 @@
         </div>
       </div>
       <div class="mt-[12px] w-full">
-        <a-table :columns="columns" :data-source="data" :scroll="{ x: 1300, y: 1000 }">
+        <a-table :columns="columns" :data-source="data" :scroll="{ x: 1300, y: 1000 }" :loading="isLoading">
           <template #bodyCell="{ column, text}">
             <template v-if="column.key === 'action'">
               <a-button type="link" @click="edit(text)">编辑</a-button>
@@ -116,11 +116,10 @@ const formRef = ref();
 
 const data = ref([]);
 
-const page = ref([0, 50]);
-const {refetch} = useRead('get_platform_airdrops', page, {
+const {refetch,isLoading} = useRead('get_platform_airdrops', {
+  initParams: [0, 50],
   type: 'ERC1229',
   onSuccess(res) {
-    console.log('get_node_list', res)
     data.value = res
   },
   onError(error){
@@ -130,7 +129,7 @@ const {refetch} = useRead('get_platform_airdrops', page, {
 
 const {write,isPending} = useWrite('set_platform_airdrop', {
   type: 'ERC1229',
-  onSuccess: (result) => {
+  onSuccess: () => {
     message.success('提交成功')
     refetch();
     open.value = false;
@@ -144,14 +143,6 @@ const onSubmit = () => {
       .validate()
       .then(() => {
         const editDataList = data.value.filter((item,_index)=>item.index != editData.value.index).map(item=>item.baseinfo)
-        console.log([
-          ...editDataList,
-          {
-            ...editData.value.baseinfo,
-            time_start: BigInt(editData.value.baseinfo.time_start.unix()),
-            totalamount: parseEther(String(editData.value.baseinfo.totalamount)),
-          }
-        ])
         write([
           [
               ...editDataList,

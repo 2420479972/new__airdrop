@@ -1,48 +1,31 @@
 import {ABI, type ABIERCType, type ABIListType} from "../abis/abi.ts";
-import {useAccountEffect, useChainId, useReadContract} from "@wagmi/vue";
-import {type Ref, watch} from "vue";
-import {useAddressStore} from "store/useAddressStore.ts";
+import {useAccount, useAccountEffect, useChainId, useReadContract} from "@wagmi/vue";
+import {watch} from "vue";
 
 
-export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'>,paramsList:Ref<any[]>|undefined ,options:{
+export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'> ,options:{
+    autoRun?:boolean,
     needAddress?:boolean,
     type:ABIListType,
     onSuccess(value:any):void,
     onError?(error:any):void,
+    initParams?:any[]
 })=>{
+    console.log(options.autoRun)
     const chainId = useChainId();
-    const addressStore = useAddressStore()
-    let params:any = {
+    const {address} = useAccount()
+    const params:any = reactive({
         functionName,
         abi: ABI[chainId.value][options.type].abi,
         address: (ABI[chainId.value][options.type].address) as any,
-    };
-    if(options.needAddress && addressStore.address != ""){
-        params = {
-            ...params,
-            args: [addressStore.address]
+        query:{
+            enabled:typeof options.autoRun !==  'undefined'  ? true : options.autoRun
         }
+    });
+    if(options.initParams){
+        params.args = options.initParams;
     }
-    if(paramsList?.value?.length && options.needAddress && addressStore.address){
-        params.args = params?.args?.concat(paramsList.value)
-    }else if(paramsList?.value?.length){
-        params = {
-            ...params,
-            args: paramsList.value,
-        }
-    }
-
     const {data,error,isLoading,refetch,status} = useReadContract(params)
-    useAccountEffect({
-        onConnect(data) {
-            addressStore.address = data.address;
-            if(options.needAddress){
-                params.args = [addressStore.address].concat(params.args).filter(item=>item.length > 0)
-            }
-            refetch();
-        }
-    })
-
     watch(()=>status.value,(newVal)=>{
         if(newVal == "success"){
             options.onSuccess(data.value)
@@ -53,11 +36,29 @@ export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'
         deep: true,
         immediate: true,
     })
+    const setParams = (args:any[])=>{
+        params.args = args;
+        refetch()
+    }
+    watch(()=>address.value,(newVal)=>{
+        if(newVal && options.needAddress){
+            if(options.needAddress && options.initParams){
+                params.args = [newVal].concat(...options.initParams)
+            }else if(options.needAddress){
+                params.args = [newVal]
+            }
+            refetch()
+        }
+    },{
+        immediate: true,
+        deep: true
+    })
     return {
         refetch,
         isLoading,
         error,
         status,
-        data
+        data,
+        setParams
     }
 }

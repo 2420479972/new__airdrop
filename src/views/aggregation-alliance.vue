@@ -118,8 +118,8 @@ const columns = [
 
 const data = ref([]);
 
-const page = ref([0,50]);
-useRead('get_aggregate_alliances',page,{
+const { refetch } = useRead('get_aggregate_alliances',{
+  initParams:[0,50],
   type:'ERC1229',
   onSuccess(res){
     console.log(res)
@@ -156,8 +156,9 @@ const rules: Record<string, Rule[]> = {
 const open = ref(false);
 const {write,isPending} = useWrite('set_aggregate_alliance',{
   type:'ERC1229',
-  onSuccess(res){
+  onSuccess(){
     message.success('操作成功')
+    refetch();
   },
   onError(error){
     message.error(error)
