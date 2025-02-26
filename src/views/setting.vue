@@ -327,7 +327,7 @@ const noticeReset = ()=>{
 }
 
 const {refetch} = useRead('getinfo',{
-  autoRun:false,
+  autoRun:true,
   type:'ERC1229',
   needAddress:true,
   onSuccess:(res)=>{
