@@ -6,6 +6,7 @@ import {watch} from "vue";
 export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'> ,options:{
     autoRun?:boolean,
     needAddress?:boolean,
+    needAddAndAuto?:boolean,
     type:ABIListType,
     onSuccess?(value:any):void,
     onError?(error:any):void,
@@ -39,8 +40,10 @@ export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'
         params.args = args;
         await refetch();
     }
+
     watch(()=>address.value,(newVal)=>{
-        if(newVal && options.needAddress && typeof options.autoRun ===  'boolean' && options.autoRun){
+        if(!newVal) return;
+        if(options.needAddress && typeof options.needAddAndAuto == 'undefined' ? true : options.needAddAndAuto){
             if(options.needAddress && options.initParams){
                 params.args = [newVal].concat(...options.initParams)
             }else if(options.needAddress){
