@@ -6,7 +6,7 @@
         <a-button type="primary" @click="addNew">增加会议</a-button>
       </div>
       <div class="mt-[12px] w-full">
-        <a-table :columns="columns" :data-source="data" :scroll="{ x: 1300, y: 1000 }">
+        <a-table :columns="columns" :data-source="dataList" :scroll="{ x: 1300, y: 1000 }">
           <template #bodyCell="{ column, text}">
             <template v-if="column.key == 'action'">
               <a-button type="link" @click="handleEdit(text)">编辑</a-button>
@@ -116,15 +116,10 @@ const columns = [
   }
 });
 
-const data = ref([]);
 
-const { refetch } = useRead('get_aggregate_alliances',{
+const { refetch,data:dataList } = useRead('get_aggregate_alliances',{
   initParams:[0,50],
   type:'ERC1229',
-  onSuccess(res){
-    console.log(res)
-    data.value = res
-  },
   onError(error){
     message.error(error)
   }

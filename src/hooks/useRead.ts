@@ -7,7 +7,7 @@ export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'
     autoRun?:boolean,
     needAddress?:boolean,
     type:ABIListType,
-    onSuccess(value:any):void,
+    onSuccess?(value:any):void,
     onError?(error:any):void,
     initParams?:any[]
 })=>{
@@ -27,7 +27,7 @@ export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'
     const {data,error,isLoading,refetch,status} = useReadContract(params)
     watch(()=>status.value,(newVal)=>{
         if(newVal == "success"){
-            options.onSuccess(data.value)
+            options.onSuccess && options.onSuccess(data.value)
         }else if(newVal == 'error'){
             options.onError && options.onError(error.value)
         }

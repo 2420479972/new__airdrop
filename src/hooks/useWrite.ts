@@ -31,11 +31,6 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
                 args: paramsList
             }
         }
-        console.log({
-            abi: ABI[chainId.value][options.type].abi,
-            address: (ABI[chainId.value][options.type].address) as any,
-            ...params
-        })
         await writeContractAsync({
             abi: ABI[chainId.value][options.type].abi,
             address: (ABI[chainId.value][options.type].address) as any,

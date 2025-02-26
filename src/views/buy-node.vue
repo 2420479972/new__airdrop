@@ -74,13 +74,10 @@ enum vipNode {
 
 const selectType = ref('');
 
-const showItem = computed(()=>{
-
-})
 
 watch(()=>selectType.value,(newVal)=>{
   const selectItem = vipTypeList.value.find(item=>item.info == newVal) || {};
-  buyNodeParams.value =   {
+  buyNodeParams.value = {
     ...selectItem,
     price: getNumber(selectItem.price),
     time_start: selectItem.time_start ? dayjs(formatTime(selectItem.time_start).toString(), dateFormat) : undefined,
@@ -147,17 +144,27 @@ const vipTypeList = ref<{
 }[]>([])
 
 
-const {refetch} =  useRead('get_product_infos',{
+const {refetch,data:productInfo} =  useRead('get_product_infos',{
   type:'ERC1229',
   onSuccess:(res)=>{
     console.log(res)
-    vipTypeList.value = res;
-    selectType.value = res[0].info == '' ? 'node' : res[0].info
+
 
   },
   onError(error){
     message.error(error)
   }
+})
+
+
+watch(()=>productInfo.value,(newVal:any)=>{
+  console.log(newVal)
+  if(!newVal) return;
+  vipTypeList.value = newVal;
+  selectType.value = selectType.value == '' ? 'node' : selectType.value
+},{
+  deep: true,
+  immediate:true,
 })
 
 </script>

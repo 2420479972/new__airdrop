@@ -6,7 +6,7 @@
 <!--        <a-button type="primary" @click="open=true">发布空投</a-button>-->
       </div>
       <div class="mt-[12px] w-full">
-        <a-table :columns="columns" :data-source="data" :scroll="{ x: 1300, y: 1000 }" :loading="isLoading">
+        <a-table :columns="columns" :data-source="listData" :scroll="{ x: 1300, y: 1000 }" :loading="isLoading">
           <template #bodyCell="{ column, text}">
             <template v-if="column.key === 'action'">
               <a-button type="link" @click="edit(text)">编辑</a-button>
@@ -128,7 +128,6 @@ const formRef = ref();
 
 const edit = (rowItem:any)=>{
   const baseInfo = rowItem.baseinfo
-  console.log(rowItem)
   editData.value.baseinfo = {
       ...rowItem.baseinfo,
       totalamount:getNumber(baseInfo.totalamount),
@@ -145,6 +144,7 @@ const {write,isPending} = useWrite('set_aggregate_airdrop',{
   onSuccess: (result) => {
     message.success('发布空投成功')
     refetch();
+    open.value = false;
   },
   onError: (error) => {
     message.error(error)
@@ -240,16 +240,10 @@ const columns = [
   }
 });
 
-const data = ref([]);
-
-const {refetch,isLoading} = useRead('get_aggregate_airdrops',{
+const {refetch,isLoading,data:listData} = useRead('get_aggregate_airdrops',{
   initParams:[0,50],
   type:'ERC1229',
-  onSuccess(res){
-    data.value = res
-  }
 })
-
 
 </script>
 

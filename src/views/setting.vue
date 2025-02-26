@@ -326,31 +326,35 @@ const noticeReset = ()=>{
   noticeDomRef.value?.resetFields()
 }
 
-const {refetch} = useRead('getinfo',{
+const {refetch,data:infoData} = useRead('getinfo',{
   autoRun:true,
   type:'ERC1229',
   needAddress:true,
-  onSuccess:(res)=>{
-    if(res){
-      userInfo.value = res
-      systemParams.value = {
-        ...res.systeminfo?.longinfo,
-        buy2parent_rate:getNumber(res.systeminfo?.longinfo,'buy2parent_rate',true),
-        node2vip_add_rate:getNumber(res.systeminfo?.longinfo,'node2vip_add_rate',true),
-        post_aggregate_airdrop_price:getNumber(res.systeminfo?.longinfo,'post_aggregate_airdrop_price',true),
-      }
-
-      editTokenAUNValue.value = getNumber(res,'stake_amount',true)
-      editUser.value.number_user = getNumber(res.systeminfo.baseinfo,'number_user')
-      editUser.value.merchant_add = res.systeminfo.baseinfo.merchant_add
-      noticeParams.value = {
-        ...res.systeminfo?.otherinfo
-      }
-    }
-  },
   onError(error){
     message.error(error)
   }
+})
+
+
+watch(()=>infoData.value,(newVal:any)=>{
+  if(!newVal) return;
+  userInfo.value = newVal
+  systemParams.value = {
+    ...newVal.systeminfo?.longinfo,
+    buy2parent_rate:getNumber(newVal.systeminfo?.longinfo,'buy2parent_rate',true),
+    node2vip_add_rate:getNumber(newVal.systeminfo?.longinfo,'node2vip_add_rate',true),
+    post_aggregate_airdrop_price:getNumber(newVal.systeminfo?.longinfo,'post_aggregate_airdrop_price',true),
+  }
+
+  editTokenAUNValue.value = getNumber(newVal,'stake_amount',true)
+  editUser.value.number_user = getNumber(newVal.systeminfo.baseinfo,'number_user')
+  editUser.value.merchant_add = newVal.systeminfo.baseinfo.merchant_add
+  noticeParams.value = {
+    ...newVal.systeminfo?.otherinfo
+  }
+},{
+  deep:true,
+  immediate:true,
 })
 
 

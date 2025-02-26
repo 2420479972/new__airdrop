@@ -60,11 +60,14 @@
 
 <script lang="ts" setup>
 import {useRead} from "@/hooks/useRead.ts";
-import {formatAddress} from "utils/base.ts";
+import {formatAddress, getNumber} from "utils/base.ts";
 import {message} from "ant-design-vue";
 import {Rule} from "postcss";
 import {useWrite} from "@/hooks/useWrite.ts";
 import {parseEther} from "viem";
+import {ABI} from "@/abis/abi.ts";
+import {useChainId} from "@wagmi/vue";
+
 const open = ref(false);
 
 const nodeColumns = [
@@ -121,24 +124,31 @@ watch(()=>data.value,(newVal)=>{
   deep: true,
 })
 
-const {isLoading:nodeLoading} =  useRead('get_node_list',{
+const {isLoading:nodeLoading,data:dataList} =  useRead('get_node_list',{
   initParams:[0,50],
   type:'ERC1229',
- async onSuccess(res){
-    nodeList.value = res.map((item,index)=>{
-      return {
-        key: 'index' + index,
-        index:  index,
-        text:item,
-        node: item,
-      }
-    })
-   setParams([res[0],0,50])
-  },
   onError(error){
     message.error(error)
   }
 })
+
+watch(()=>dataList.value,(newVal:any)=>{
+  if(!newVal) return;
+  nodeList.value = newVal.map((item,index)=>{
+    return {
+      key: 'index' + index,
+      index:  index,
+      text:item,
+      node: item,
+    }
+  })
+  setParams([newVal[0],0,50])
+},{
+  deep: true,
+  immediate: true,
+})
+
+
 
 const clickNode = (address:string)=>{
   setParams([address,0,50])
@@ -166,6 +176,7 @@ const vipSelection = ref({
   },
 });
 
+const chainId = useChainId();
 
 const batch = ref({})
 const formRef = ref();
@@ -181,6 +192,32 @@ const batchReset = ()=>{
   formRef.value?.resetFields()
 }
 
+const allowance = ref(0);
+const { setParams:allowSetParams } =  useRead('allowance', {
+  autoRun:false,
+  type: 'ttoken',
+  needAddress: true,
+  onSuccess(data) {
+    allowance.value = getNumber(data)
+  },
+  onError(error){
+    message.error(error)
+  }
+})
+let sendParams:any = null
+
+const {write:ApproveWrite} = useWrite('approve',{
+  type: 'ttoken',
+  onSuccess(data) {
+    setTimeout(()=>{
+      write(sendParams);
+    },500)
+  },
+  onError: (error) => {
+    message.error(error)
+    sendParams = null
+  }
+})
 
 const {write,isPending} = useWrite('platform_airdrop',{
   type:'ERC1229',
@@ -200,17 +237,23 @@ const {write,isPending} = useWrite('platform_airdrop',{
 const onSubmit = ()=>{
   formRef.value
       .validate()
-      .then(() => {
-        console.log([
+      .then(async () => {
+        sendParams = [
           [...vipSelectedList.value.map(item=>item.vip_address),...nodeSelectedList.value.map(item=>item.node)],
           batch.value.token,
           parseEther(String(batch.value.baseamount))
-        ])
-        write([
-          [...vipSelectedList.value.map(item=>item.vip_address),...nodeSelectedList.value.map(item=>item.node)],
-          batch.value.token,
-          parseEther(String(batch.value.baseamount))
-        ])
+        ]
+        console.log('sendParams',sendParams)
+        await allowSetParams([ABI[chainId.value]['ERC1229'].address,batch.value.token]);
+        const balanceValue =batch.value.baseamount - allowance.value;
+        if(balanceValue > 0){
+          await ApproveWrite([ABI[chainId.value]['ERC1229'].address,parseEther(String(batch.value.baseamount))],{
+            address: batch.value.token
+          })
+        }else{
+          await write(sendParams)
+        }
+
       })
 }
 

@@ -92,24 +92,30 @@ const formList = [
 formList.forEach((item)=>{
   rules[item.key] = [{required: true, message: '请输入' + item.label, trigger: 'change'}]
 })
-const { refetch } = useRead('platform_subscription', {
+const { refetch,data:subscriptionData } = useRead('platform_subscription', {
   type:'ERC1229',
-  onSuccess(data) {
-    if (data.length > 0) {
-      console.log(data)
-      for (let i = 0; i < data.length; i++) {
-        if (i == 3 || i == 4) {
-          oldPlatformParams.value[formList[i].key] = dayjs(formatTime(data[i]), 'YYYY-MM-DD HH:mm');
-        } else if (i == 5) {
-          oldPlatformParams.value[formList[i].key] = data[i];
-        } else {
-          oldPlatformParams.value[formList[i].key] = getNumber(data[i]);
-        }
-      }
-      platformParams.value = {...oldPlatformParams.value}
-    }
-  }
 })
+
+watch(()=>subscriptionData.value,(newVal)=>{
+  if(!newVal) return;
+  if (newVal.length > 0) {
+    for (let i = 0; i < newVal.length; i++) {
+      if (i == 3 || i == 4) {
+        oldPlatformParams.value[formList[i].key] = dayjs(formatTime(newVal[i]), 'YYYY-MM-DD HH:mm');
+      } else if (i == 5) {
+        oldPlatformParams.value[formList[i].key] = newVal[i];
+      } else {
+        oldPlatformParams.value[formList[i].key] = getNumber(newVal[i]);
+      }
+    }
+    platformParams.value = {...oldPlatformParams.value}
+  }
+},{
+  deep: true,
+  immediate: true
+})
+
+
 
 const allowance = ref(0);
 const { setParams } =  useRead('allowance', {

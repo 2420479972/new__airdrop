@@ -8,7 +8,7 @@
         </div>
       </div>
       <div class="mt-[12px] w-full">
-        <a-table :columns="columns" :data-source="data" :scroll="{ x: 1300, y: 1000 }" :loading="isLoading">
+        <a-table :columns="columns" :data-source="dataList" :scroll="{ x: 1300, y: 1000 }" :loading="isLoading">
           <template #bodyCell="{ column, text}">
             <template v-if="column.key === 'action'">
               <a-button type="link" @click="edit(text)">编辑</a-button>
@@ -114,14 +114,10 @@ const rules: Record<string, Rule[]> = {
 const formRef = ref();
 
 
-const data = ref([]);
 
-const {refetch,isLoading} = useRead('get_platform_airdrops', {
+const {refetch,isLoading,data:dataList} = useRead('get_platform_airdrops', {
   initParams: [0, 50],
   type: 'ERC1229',
-  onSuccess(res) {
-    data.value = res
-  },
   onError(error){
     message.error(error)
   }
