@@ -117,7 +117,6 @@ const { setParams } =  useRead('allowance', {
   type: 'ttoken',
   needAddress: true,
   onSuccess(data) {
-    alert(data);
     allowance.value = getNumber(data)
   },
   onError(error){
@@ -129,7 +128,9 @@ let sendParams:any = null
 const {write:ApproveWrite} = useWrite('approve',{
   type: 'ttoken',
   onSuccess(data) {
-    subscriptionWrite([sendParams]);
+    setTimeout(()=>{
+      subscriptionWrite([sendParams]);
+    },500)
   },
   onError: (error) => {
     message.error(error)
@@ -141,8 +142,8 @@ const {write:subscriptionWrite,isPending} = useWrite('set_platform_subscription'
   type: 'ERC1229',
   onSuccess(data) {
     message.success('提交成功')
-    sendParams = null
     refetch()
+    sendParams = null
   },
   onError: (error) => {
     message.error(error)
@@ -166,14 +167,14 @@ const onSubmit = () => {
         await setParams([ABI[chainId.value]['ERC1229'].address,platformParams.value.token]);
         const approveValue = platformParams.value?.totalamount - allowance.value;
         if (approveValue > 0) {
-          ApproveWrite([
+          await ApproveWrite([
             ABI[chainId.value]['ERC1229'].address,
-              parseEther(String(approveValue)),
-          ],{
-            address:platformParams.value.token
+            parseEther(String(approveValue)),
+          ], {
+            address: platformParams.value.token
           })
         }else{
-          subscriptionWrite([sendParams]);
+          await subscriptionWrite([sendParams]);
         }
       })
 };
