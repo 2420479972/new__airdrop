@@ -112,11 +112,12 @@ const { refetch } = useRead('platform_subscription', {
 })
 
 const allowance = ref(0);
-useRead('allowance', {
-  initParams:[ABI[chainId.value]['ERC1229'].address],
+const { setParams } =  useRead('allowance', {
+  autoRun:false,
   type: 'ttoken',
   needAddress: true,
   onSuccess(data) {
+    alert(data);
     allowance.value = getNumber(data)
   },
   onError(error){
@@ -128,9 +129,7 @@ let sendParams:any = null
 const {write:ApproveWrite} = useWrite('approve',{
   type: 'ttoken',
   onSuccess(data) {
-    console.log(sendParams)
     subscriptionWrite([sendParams]);
-
   },
   onError: (error) => {
     message.error(error)
@@ -153,7 +152,7 @@ const {write:subscriptionWrite,isPending} = useWrite('set_platform_subscription'
 const onSubmit = () => {
   formRef.value
       .validate()
-      .then(() => {
+      .then(async () => {
          sendParams = {
           ...platformParams.value,
            already_received: parseEther(String(platformParams.value.already_received)),
@@ -164,16 +163,16 @@ const onSubmit = () => {
           baseamount: parseEther(String(platformParams.value.baseamount)),
            baseprice: parseEther(String(platformParams.value.baseprice)),
         }
-        console.log(sendParams);
+        await setParams([ABI[chainId.value]['ERC1229'].address,platformParams.value.token]);
         const approveValue = platformParams.value?.totalamount - allowance.value;
-        console.log(platformParams.value?.totalamount,allowance.value);
         if (approveValue > 0) {
           ApproveWrite([
-              ABI[chainId.value]['ERC1229'].address,
+            ABI[chainId.value]['ERC1229'].address,
               parseEther(String(approveValue)),
-          ])
+          ],{
+            address:platformParams.value.token
+          })
         }else{
-          console.log(sendParams)
           subscriptionWrite([sendParams]);
         }
       })

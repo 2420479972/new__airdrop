@@ -308,7 +308,7 @@ const systemReset = ()=>{
 
 const noticeParams = ref({});
 const noticeDomRef = ref<InstanceType<typeof Form>>();
-const {write:noticeWrite,isPending:otherPending} = useWrite('set_otherinfo',{
+const {write:noticeWrite,isPending:otherPending,reset:otherReset} = useWrite('set_otherinfo',{
   type:'ERC1229',
   onSuccess(){
     message.success('修改成功')
@@ -322,6 +322,7 @@ const noticeOnSubmit = ()=>{
         noticeWrite([noticeParams.value])
 }
 const noticeReset = ()=>{
+  otherReset();
   noticeDomRef.value?.resetFields()
 }
 

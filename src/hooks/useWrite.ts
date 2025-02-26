@@ -11,10 +11,9 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
 
 }) => {
     const chainId = useChainId();
-    console.log(chainId);
     const addressStore = useAddressStore()
-    const {writeContractAsync, isPending,error} = useWriteContract()
-    const write = async (paramsList: any[]) => {
+    const {writeContractAsync, isPending,error,reset} = useWriteContract()
+    const write = async (paramsList: any[],other:any ={}) => {
         let params:any= {
             functionName
         };
@@ -32,10 +31,16 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
                 args: paramsList
             }
         }
-        await writeContractAsync({
+        console.log({
             abi: ABI[chainId.value][options.type].abi,
             address: (ABI[chainId.value][options.type].address) as any,
             ...params
+        })
+        await writeContractAsync({
+            abi: ABI[chainId.value][options.type].abi,
+            address: (ABI[chainId.value][options.type].address) as any,
+            ...params,
+            ...other
         }, {
             onSuccess: async (value) => {
                 options.onSuccess(value)
@@ -48,6 +53,6 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
     return {
         isPending,
         write,
-
+        reset
     }
 }

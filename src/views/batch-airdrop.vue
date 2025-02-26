@@ -201,6 +201,11 @@ const onSubmit = ()=>{
   formRef.value
       .validate()
       .then(() => {
+        console.log([
+          [...vipSelectedList.value.map(item=>item.vip_address),...nodeSelectedList.value.map(item=>item.node)],
+          batch.value.token,
+          parseEther(String(batch.value.baseamount))
+        ])
         write([
           [...vipSelectedList.value.map(item=>item.vip_address),...nodeSelectedList.value.map(item=>item.node)],
           batch.value.token,

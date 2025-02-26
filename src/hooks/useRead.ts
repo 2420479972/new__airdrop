@@ -11,7 +11,6 @@ export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'
     onError?(error:any):void,
     initParams?:any[]
 })=>{
-    console.log(options.autoRun)
     const chainId = useChainId();
     const {address} = useAccount()
     const params:any = reactive({
@@ -19,7 +18,7 @@ export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'
         abi: ABI[chainId.value][options.type].abi,
         address: (ABI[chainId.value][options.type].address) as any,
         query:{
-            enabled:typeof options.autoRun !==  'undefined'  ? true : options.autoRun
+            enabled:typeof options.autoRun ===  'undefined'  ? true : options.autoRun
         }
     });
     if(options.initParams){
@@ -36,12 +35,12 @@ export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'
         deep: true,
         immediate: true,
     })
-    const setParams = (args:any[])=>{
+    const setParams =async (args:any[])=>{
         params.args = args;
-        refetch()
+        await refetch();
     }
     watch(()=>address.value,(newVal)=>{
-        if(newVal && options.needAddress){
+        if(newVal && options.needAddress && typeof options.autoRun ===  'boolean' && options.autoRun){
             if(options.needAddress && options.initParams){
                 params.args = [newVal].concat(...options.initParams)
             }else if(options.needAddress){
