@@ -196,6 +196,7 @@ const allowance = ref(0);
 const { setParams:allowSetParams } =  useRead('allowance', {
   autoRun:false,
   type: 'ttoken',
+  needAddAndAuto:false,
   needAddress: true,
   onSuccess(data) {
     allowance.value = getNumber(data)
@@ -209,9 +210,7 @@ let sendParams:any = null
 const {write:ApproveWrite} = useWrite('approve',{
   type: 'ttoken',
   onSuccess(data) {
-    setTimeout(()=>{
       write(sendParams);
-    },500)
   },
   onError: (error) => {
     message.error(error)
@@ -224,6 +223,8 @@ const {write,isPending} = useWrite('platform_airdrop',{
   onSuccess(value: any) {
     message.success('空投发布成功')
     open.value = false
+    vipSelection.value.selectedRowKeys = []
+    nodeSelection.value.selectedRowKeys = []
     nodeSelectedList.value = [];
     vipSelectedList.value = [];
     batchReset()
@@ -238,8 +239,9 @@ const onSubmit = ()=>{
   formRef.value
       .validate()
       .then(async () => {
+        const nodeAndVipList =  [...vipSelectedList.value.map(item=>item.vip_address),...nodeSelectedList.value.map(item=>item.node)];
         sendParams = [
-          [...vipSelectedList.value.map(item=>item.vip_address),...nodeSelectedList.value.map(item=>item.node)],
+          nodeAndVipList,
           batch.value.token,
           parseEther(String(batch.value.baseamount))
         ]
@@ -247,7 +249,7 @@ const onSubmit = ()=>{
         await allowSetParams([ABI[chainId.value]['ERC1229'].address,batch.value.token]);
         const balanceValue =batch.value.baseamount - allowance.value;
         if(balanceValue > 0){
-          await ApproveWrite([ABI[chainId.value]['ERC1229'].address,parseEther(String(batch.value.baseamount))],{
+          await ApproveWrite([ABI[chainId.value]['ERC1229'].address,parseEther(String(batch.value.baseamount * nodeAndVipList.length))],{
             address: batch.value.token
           })
         }else{
