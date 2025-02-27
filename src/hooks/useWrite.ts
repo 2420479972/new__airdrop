@@ -31,7 +31,7 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
                 args: paramsList
             }
         }
-        await writeContractAsync({
+       return await writeContractAsync({
             abi: ABI[chainId.value][options.type].abi,
             address: (ABI[chainId.value][options.type].address) as any,
             ...params,
@@ -41,7 +41,9 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
                 options.onSuccess(value)
             },
             onError: async (_error) => {
-                options.onError?.(_error)
+                const regex = /ContractFunctionExecutionError:([\s\S]*?)Request Arguments:/;
+                const match = String(_error).match(regex);
+                options.onError?.(match?.[1].trim())
             },
         })
     }

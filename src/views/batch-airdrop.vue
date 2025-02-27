@@ -51,7 +51,7 @@
     <template #footer>
       <div class="flex items-center justify-end gap-x-[10px]">
         <a-button style="margin-right: 8px" @click="batchReset">取消</a-button>
-        <a-button type="primary" @click="onSubmit" :loading="isPending">确认</a-button>
+        <a-button type="primary" @click="onSubmit" :loading="isPending || approvePending">确认</a-button>
       </div>
 
     </template>
@@ -207,7 +207,7 @@ const { setParams:allowSetParams } =  useRead('allowance', {
 })
 let sendParams:any = null
 
-const {write:ApproveWrite} = useWrite('approve',{
+const {write:ApproveWrite,isPending:approvePending} = useWrite('approve',{
   type: 'ttoken',
   onSuccess(data) {
       write(sendParams);
@@ -249,9 +249,12 @@ const onSubmit = ()=>{
         await allowSetParams([ABI[chainId.value]['ERC1229'].address,batch.value.token]);
         const balanceValue =batch.value.baseamount - allowance.value;
         if(balanceValue > 0){
-          await ApproveWrite([ABI[chainId.value]['ERC1229'].address,parseEther(String(batch.value.baseamount * nodeAndVipList.length))],{
+         await ApproveWrite([ABI[chainId.value]['ERC1229'].address,parseEther(String(batch.value.baseamount * nodeAndVipList.length))],{
             address: batch.value.token
           })
+          setTimeout(()=>{
+             write(sendParams)
+          },5000)
         }else{
           await write(sendParams)
         }

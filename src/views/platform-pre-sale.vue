@@ -19,7 +19,7 @@
         </a-form>
         <div class="flex items-center gap-x-5">
           <a-button type="link" @click="checkEdit">编辑</a-button>
-          <a-button type="primary" @click="onSubmit" :disabled="disabled" :loading="isPending">提交</a-button>
+          <a-button type="primary" @click="onSubmit" :disabled="disabled" :loading="loading||isPending || approvePending">提交</a-button>
         </div>
       </div>
     </div>
@@ -121,6 +121,7 @@ const allowance = ref(0);
 const { setParams } =  useRead('allowance', {
   autoRun:false,
   type: 'ttoken',
+  needAddAndAuto:false,
   needAddress: true,
   onSuccess(data) {
     allowance.value = getNumber(data)
@@ -130,13 +131,15 @@ const { setParams } =  useRead('allowance', {
   }
 })
 let sendParams:any = null
-
-const {write:ApproveWrite} = useWrite('approve',{
+const loading = ref(false);
+const {write:ApproveWrite,isPending:approvePending} = useWrite('approve',{
   type: 'ttoken',
   onSuccess(data) {
+    console.log(data,'这个数据')
+    loading.value = true;
     setTimeout(()=>{
       subscriptionWrite([sendParams]);
-    },500)
+    },15000)
   },
   onError: (error) => {
     message.error(error)
@@ -150,10 +153,13 @@ const {write:subscriptionWrite,isPending} = useWrite('set_platform_subscription'
     message.success('提交成功')
     refetch()
     sendParams = null
+    loading.value = false;
   },
   onError: (error) => {
     message.error(error)
     sendParams = null
+    loading.value = false;
+
   }
 })
 const onSubmit = () => {
@@ -179,6 +185,7 @@ const onSubmit = () => {
           ], {
             address: platformParams.value.token
           })
+
         }else{
           await subscriptionWrite([sendParams]);
         }
