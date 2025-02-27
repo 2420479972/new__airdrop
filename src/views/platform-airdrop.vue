@@ -138,7 +138,7 @@ const onSubmit = () => {
   formRef.value
       .validate()
       .then(() => {
-        const editDataList = data.value.filter((item,_index)=>item.index != editData.value.index).map(item=>item.baseinfo)
+        const editDataList = dataList.value.filter((item,_index)=>item.index != editData.value.index).map(item=>item.baseinfo)
         write([
           [
               ...editDataList,
@@ -198,7 +198,7 @@ const columns = [
 });
 
 const confirm = (_item)=>{
-  const editData = data.value.filter((item,_index)=>item.index != _item.index).map(item=>item.baseinfo)
+  const editData = dataList.value.filter((item,_index)=>item.index != _item.index).map(item=>item.baseinfo)
   write([
     editData
   ])
@@ -207,7 +207,7 @@ const confirm = (_item)=>{
 const addNew = ()=>{
   open.value = true;
   editData.value.baseinfo = {}
-  editData.value.index = data.value.length;
+  editData.value.index = dataList.value.length;
 }
 
 
