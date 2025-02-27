@@ -49,7 +49,15 @@ const formList = [
   {
     label:'已售数量',
     key:'already_received',
-    type:"number"
+    type:"number",
+    rules:[{
+      validator: async (value)=>{
+        if(platformParams.value.already_received > platformParams.value.totalamount){
+          return Promise.reject('已售数量不能大于总供应量');
+        }
+      },
+      trigger: 'change'
+    }]
   },
   {
     label:'总供应量',
@@ -91,6 +99,9 @@ const formList = [
 
 formList.forEach((item)=>{
   rules[item.key] = [{required: true, message: '请输入' + item.label, trigger: 'change'}]
+  if(item.rules){
+    rules[item.key] = [...rules[item.key],...item.rules]
+  }
 })
 const { refetch,data:subscriptionData } = useRead('platform_subscription', {
   type:'ERC1229',
