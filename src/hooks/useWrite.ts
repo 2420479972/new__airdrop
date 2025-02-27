@@ -41,9 +41,9 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
                 options.onSuccess(value)
             },
             onError: async (_error) => {
-                const regex = /ContractFunctionExecutionError:([\s\S]*?)Request Arguments:/;
-                const match = String(_error).match(regex);
-                options.onError?.(match?.[1].trim())
+                // const regex = /ContractFunctionExecutionError:([\s\S]*?)Request Arguments:/;
+                // const match = String(_error).match(regex);
+                options.onError?.(_error)
             },
         })
     }
