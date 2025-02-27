@@ -51,7 +51,7 @@
     <template #footer>
       <div class="flex items-center justify-end gap-x-[10px]">
         <a-button style="margin-right: 8px" @click="batchReset">取消</a-button>
-        <a-button type="primary" @click="onSubmit" :loading="isPending || approvePending">确认</a-button>
+        <a-button type="primary" @click="onSubmit" :loading="loading || isPending || approvePending">确认</a-button>
       </div>
 
     </template>
@@ -206,11 +206,14 @@ const { setParams:allowSetParams } =  useRead('allowance', {
   }
 })
 let sendParams:any = null
-
+let loading = ref(false);
 const {write:ApproveWrite,isPending:approvePending} = useWrite('approve',{
   type: 'ttoken',
   onSuccess(data) {
+    loading.value = true;
+    setTimeout(()=>{
       write(sendParams);
+    },8000)
   },
   onError: (error) => {
     message.error(error)
@@ -229,9 +232,11 @@ const {write,isPending} = useWrite('platform_airdrop',{
     vipSelectedList.value = [];
     batchReset()
     refetch()
+    loading.value = false;
   },
   onError(error){
     message.error(error)
+    loading.value = false;
   }
 })
 

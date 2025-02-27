@@ -138,6 +138,7 @@ const {write:ApproveWrite,isPending:approvePending} = useWrite('approve',{
     console.log(data,'这个数据')
     loading.value = true;
     setTimeout(()=>{
+      console.log(sendParams);
       subscriptionWrite([sendParams]);
     },15000)
   },
@@ -185,7 +186,6 @@ const onSubmit = () => {
           ], {
             address: platformParams.value.token
           })
-
         }else{
           await subscriptionWrite([sendParams]);
         }
