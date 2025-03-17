@@ -9,14 +9,14 @@
     </div>
   </div>
   <div class="w-full content py-[14px] px-[12px] bg-[#F4F5F7]">
-    <div class="grid grid-cols-3 gap-x-[11px]">
+    <div class="grid grid-cols-4 gap-x-[11px]">
       <div class="w-full h-[111px] bg-[#fff] shadow rounded-[5px] py-[19px] px-[14px] flex items-center">
         <div class="w-[63px]">
           <img alt="" class="w-full" src="/images/icon-setting1.png">
         </div>
         <div class="ml-[17px] h-full pt-[5px] space-y-[9px]">
-          <div class="text-[#3B3D47] text-[12px] text">流动性池</div>
-          <div class="text-[##181818] text-[21px]">{{getNumber(userInfo,'liquidity',true) }}</div>
+          <div class="text-[#3B3D47] text-[12px] text">真实流动性池</div>
+          <div class="text-[##181818] text-[21px]">{{getNumber(realPoolStakeData) }}</div>
           <div class="flex items-center gap-x-[6px]">
             <div
                 @click="takeOutShow = true"
@@ -27,6 +27,26 @@
                 @click="transferShow = true"
                 class="py-[3px] px-[7px]  text-center border-[#4D6AEA] border-solid border-[1px] rounded-[3px] text-[#4D6AEA] cursor-pointer">
               转入
+            </div>
+<!--            <div-->
+<!--                class="py-[3px] px-[7px]  bg-[#4D6AEA] text-center border-solid border-[1px] rounded-[3px] text-[#fff] cursor-pointer">-->
+<!--              展示数据000-->
+<!--            </div>-->
+          </div>
+        </div>
+      </div>
+      <div class="w-full h-[111px] bg-[#fff] shadow rounded-[5px] py-[19px] px-[14px] flex items-center">
+        <div class="w-[63px]">
+          <img alt="" class="w-full" src="/images/icon-setting1.png">
+        </div>
+        <div class="ml-[17px] h-full pt-[5px] space-y-[9px]">
+          <div class="text-[#3B3D47] text-[12px] text">假流动性池</div>
+          <div class="text-[##181818] text-[21px]">{{getNumber(fakePoolStakeData) }}</div>
+          <div class="flex items-center gap-x-[6px]">
+            <div
+                @click="fakePoolStakeShow = true"
+                class="py-[3px] px-[7px]  bg-[#4D6AEA] text-center border-solid border-[1px] rounded-[3px] text-[#fff] cursor-pointer">
+              更改展示数据
             </div>
 <!--            <div-->
 <!--                class="py-[3px] px-[7px]  bg-[#4D6AEA] text-center border-solid border-[1px] rounded-[3px] text-[#fff] cursor-pointer">-->
@@ -87,7 +107,7 @@
       </div>
     </div>
   </div>
-  <a-modal v-model:open="transferShow" :width="300"  title="请输入你的转入金额" @ok="transferOK" destroyOnClose :confirm-loading="transferPending">
+  <a-modal v-model:open="transferShow" :width="300"  title="请输入你的转入金额" @ok="transferOK" @cancel="transferValue = undefined" destroyOnClose :confirm-loading="transferPending">
     <a-form-item label="转入金额">
       <a-input-number v-model:value="transferValue" :min="0.000000001" placeholder="请输入你的转入金额" class="w-full"></a-input-number>
     </a-form-item>
@@ -97,14 +117,16 @@
       <a-input-number v-model:value="takeOutValue" :min="getNumber(userInfo,'liquidity',true) > 0 ? 0.00000000000001 : 0" :max="getNumber(userInfo,'liquidity',true)" :placeholder="'最大取款金额为' + getNumber(userInfo,'liquidity',true)"  class="w-full"></a-input-number>
     </a-form-item>
   </a-modal>
-  <a-modal v-model:open="editUserNumberShow" :width="300"  title="编辑平台用户" @ok="editUserNumberOk" destroyOnClose :confirm-loading="baseInfoPending">
+  <a-modal v-model:open="editUserNumberShow" :width="300"  title="编辑平台用户" @ok="editUserNumberOk" @cancel="editReset" destroyOnClose :confirm-loading="baseInfoPending">
     <div class="space-y-3">
-      <a-form-item label="商户地址">
-        <a-input v-model:value="editUser['merchant_add']" placeholder="0x....." class="w-full"></a-input>
-      </a-form-item>
-      <a-form-item label="平台用户">
-        <a-input-number :min="1" v-model:value="editUser['number_user']" placeholder="请输入平台用户" class="w-full"></a-input-number>
-      </a-form-item>
+      <a-form :model="editUser" ref="editForm">
+        <a-form-item label="商户地址" name="merchant_add">
+          <a-input v-model:value="editUser['merchant_add']" placeholder="0x....." class="w-full"></a-input>
+        </a-form-item>
+        <a-form-item label="平台用户" name="number_user">
+          <a-input-number :min="1" v-model:value="editUser['number_user']" placeholder="请输入平台用户" class="w-full"></a-input-number>
+        </a-form-item>
+      </a-form>
     </div>
   </a-modal>
 <!--  <a-modal v-model:open="editTokenAUNShow" :width="300"  title="编辑代币AUN" @ok="editTokenAUNOk" destroyOnClose>-->
@@ -149,38 +171,43 @@
   </a-modal>
 
 
-  <a-modal v-model:open="noticeShow" title="平台通知设置" @ok="noticeOnSubmit"  @cancel="noticeReset" :confirm-loading="otherPending">
-      <div class="mt-[15px] w-full">
-        <div class="text-[#3B3D47] text-[8px] flex items-center">
-          <a-form-item label="通知" name="notice">
-            <a-input  v-model:value="noticeParams['notice']"  placeholder="请输入通知" style="width: 180px"/>
-          </a-form-item>
-        </div>
-        <div class="text-[#3B3D47] text-[8px] flex items-center">
-          <a-form-item label="电报链接" name="telegram_link">
-            <a-input  v-model:value="noticeParams['telegram_link']"  placeholder="请输入电报链接" style="width: 180px"/>
-          </a-form-item>
-        </div>
-        <div class="text-[#3B3D47] text-[8px] flex items-center">
-          <a-form-item label="推特链接">
-            <a-input  v-model:value="noticeParams['twitter_link']"  placeholder="请输入推特链接" style="width: 180px"/>
-          </a-form-item>
-        </div>
-        <div class="text-[#3B3D47] text-[8px] flex items-center">
-          <a-form-item label="链接1" name="link_1">
-            <a-input  v-model:value="noticeParams['link_1']"  placeholder="请输入链接1" style="width: 180px"/>
-          </a-form-item>
-        </div>
-        <div class="text-[#3B3D47] text-[8px] flex items-center">
-          <a-form-item label="链接2" name="link_2">
-            <a-input  v-model:value="noticeParams['link_2']"  placeholder="请输入链接2" style="width: 180px"/>
-          </a-form-item>
-        </div>
+  <a-modal v-model:open="noticeShow" title="平台通知设置" @ok="noticeOnSubmit"   @cancel="noticeReset" :confirm-loading="otherPending">
+  <a-form :model="noticeParams" ref="noticeDomRef">
+    <div class="mt-[15px] w-full">
+      <div class="text-[#3B3D47] text-[8px] flex items-center">
+        <a-form-item label="通知" name="notice">
+          <a-input  v-model:value="noticeParams['notice']"  placeholder="请输入通知" style="width: 180px"/>
+        </a-form-item>
       </div>
+      <div class="text-[#3B3D47] text-[8px] flex items-center">
+        <a-form-item label="电报链接" name="telegram_link">
+          <a-input  v-model:value="noticeParams['telegram_link']"  placeholder="请输入电报链接" style="width: 180px"/>
+        </a-form-item>
+      </div>
+      <div class="text-[#3B3D47] text-[8px] flex items-center">
+        <a-form-item label="推特链接" name="twitter_link">
+          <a-input  v-model:value="noticeParams['twitter_link']"  placeholder="请输入推特链接" style="width: 180px"/>
+        </a-form-item>
+      </div>
+      <div class="text-[#3B3D47] text-[8px] flex items-center">
+        <a-form-item label="链接1" name="link_1">
+          <a-input  v-model:value="noticeParams['link_1']"  placeholder="请输入链接1" style="width: 180px"/>
+        </a-form-item>
+      </div>
+      <div class="text-[#3B3D47] text-[8px] flex items-center">
+        <a-form-item label="链接2" name="link_2">
+          <a-input  v-model:value="noticeParams['link_2']"  placeholder="请输入链接2" style="width: 180px"/>
+        </a-form-item>
+      </div>
+    </div>
 
+  </a-form>
   </a-modal>
-
-
+  <a-modal v-model:open="fakePoolStakeShow" :width="300" title="请输入假流动性金额" @cancel="fakePoolStakeValue = getNumber(fakePoolStakeData)" @ok="fakePoolStakeOK" destroyOnClose :confirm-loading="fakePoolStakePending">
+    <a-form-item label="假流动性金额">
+      <a-input-number v-model:value="fakePoolStakeValue" :min="0" placeholder="请输入假流动性金额"  class="w-full"></a-input-number>
+    </a-form-item>
+  </a-modal>
 
 </template>
 
@@ -212,7 +239,7 @@ const {write:transferWrite,isPending:transferPending} = useWrite('transfer',{
   onSuccess(){
   message.success('转账成功')
     refetch()
-
+    realPoolStakeReFetch()
   },
   onError(err){
   message.error(err)
@@ -231,6 +258,7 @@ const {write,isPending:withdrawPending} = useWrite('withdraw_liquidity_pool',{
   onSuccess(){
     message.success('提现成功')
     refetch()
+    realPoolStakeReFetch()
   },
   onError(error:any){
     message.error(error)
@@ -326,6 +354,13 @@ const noticeReset = ()=>{
   noticeDomRef.value?.resetFields()
 }
 
+const editForm = ref();
+const editReset = ()=>{
+  console.log(editForm.value)
+  editForm.value?.resetFields()
+}
+
+
 const {refetch,data:infoData} = useRead('getinfo',{
   autoRun:false,
   type:'ERC1229',
@@ -339,6 +374,7 @@ const {refetch,data:infoData} = useRead('getinfo',{
 watch(()=>infoData.value,(newVal:any)=>{
   if(!newVal) return;
   userInfo.value = newVal
+  console.log(newVal)
   systemParams.value = {
     ...newVal.systeminfo?.longinfo,
     buy2parent_rate:getNumber(newVal.systeminfo?.longinfo,'buy2parent_rate',true),
@@ -357,8 +393,43 @@ watch(()=>infoData.value,(newVal:any)=>{
   immediate:true,
 })
 
+const fakePoolStakeShow = ref(false);
+const fakePoolStakeValue = ref(0);
+const {refetch:fakePoolStakeReFetch, data:fakePoolStakeData} = useRead('fake_add_pool_stake_amount',{
+  type:'ERC1229',
+  onSuccess(value) {
+    fakePoolStakeValue.value = getNumber(value);
+  },
+})
 
 
+
+const {refetch:realPoolStakeReFetch, data:realPoolStakeData} = useRead('total_real_pool_stake_amount',{
+  type:'ERC1229'
+})
+
+
+
+const {write:fakePoolStakeWrite,isPending:fakePoolStakePending} = useWrite('set_fake_add_pool_stake_amount',{
+  type:'ERC1229',
+  onSuccess(){
+    message.success('修改成功')
+    fakePoolStakeReFetch()
+    fakePoolStakeShow.value = false
+  },
+  onError(error){
+    message.error(error)
+  }
+})
+
+
+const fakePoolStakeOK = ()=>{
+  if(!fakePoolStakeValue.value){
+    message.error('输入错误')
+    return;
+  }
+  fakePoolStakeWrite([parseEther(String(fakePoolStakeValue.value))])
+}
 
 
 

@@ -1,5 +1,5 @@
 import {ABI, type ABIERCType, type ABIListType} from "../abis/abi.ts";
-import {useAccount, useAccountEffect, useChainId, useReadContract} from "@wagmi/vue";
+import {useAccount, useAccountEffect, useBlockNumber, useChainId, useReadContract} from "@wagmi/vue";
 import {watch} from "vue";
 
 
@@ -18,6 +18,7 @@ export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'
         functionName,
         abi: ABI[chainId.value][options.type].abi,
         address: (ABI[chainId.value][options.type].address) as any,
+        cacheTime:0,
         query:{
             enabled:typeof options.autoRun ===  'undefined'  ? true : options.autoRun
         }
@@ -40,6 +41,18 @@ export const useRead = (functionName:ABIERCType<'ttoken'> | ABIERCType<'ERC1229'
         params.args = args;
         await refetch();
     }
+    const { data: blockNumber } = useBlockNumber({
+        watch: true, // 监听区块变化
+    });
+
+    watch(()=>blockNumber.value,async()=>{
+        if(status.value == 'success'){
+            await refetch();
+        }
+    },{
+        immediate:true,
+        deep:true
+    })
 
     watch(()=>address.value,(newVal)=>{
         if(!newVal) return;

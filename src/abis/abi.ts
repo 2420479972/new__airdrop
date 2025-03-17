@@ -1424,13 +1424,14 @@ export const ABI =  {
       ],
       "address": "0x8E941c2141e37c8c427565d7415a179E3677ab24",
       "target": "0x8E941c2141e37c8c427565d7415a179E3677ab24",
-      "blocknumber": 46881862,
+      "blocknumber": 47028570,
       "constructorArguments": "",
       "network": {
         "name": "bnbmain",
         "chainId": 56,
         "url": "https://bsc-dataseed3.defibit.io"
-      }
+      },
+      "p_address": ""
     },
     "ttoken": {
       "contractName": "ttoken",
@@ -1901,6 +1902,19 @@ export const ABI =  {
           "name": "buy_platform_subscription",
           "outputs": [],
           "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "fake_add_pool_stake_amount",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
           "type": "function"
         },
         {
@@ -2839,6 +2853,19 @@ export const ABI =  {
         {
           "inputs": [
             {
+              "internalType": "uint256",
+              "name": "_fake_add_pool_stake_amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "set_fake_add_pool_stake_amount",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
               "components": [
                 {
                   "internalType": "address",
@@ -3155,6 +3182,19 @@ export const ABI =  {
           "type": "function"
         },
         {
+          "inputs": [],
+          "name": "total_real_pool_stake_amount",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
           "inputs": [
             {
               "internalType": "address",
@@ -3214,13 +3254,14 @@ export const ABI =  {
       ],
       "address": "0x3909E03e3A8C102733658C21Ef662B86096C492D",
       "target": "0x3909E03e3A8C102733658C21Ef662B86096C492D",
-      "blocknumber": 48634913,
+      "blocknumber": 49070210,
       "constructorArguments": "",
       "network": {
         "name": "bnbtest",
         "chainId": 97,
         "url": "https://data-seed-prebsc-1-s1.bnbchain.org:8545"
-      }
+      },
+      "p_address": ""
     },
     "ttoken": {
       "contractName": "ttoken",
@@ -5002,15 +5043,16 @@ export const ABI =  {
           "type": "function"
         }
       ],
-      "address": "0x3909E03e3A8C102733658C21Ef662B86096C492D",
-      "target": "0x3909E03e3A8C102733658C21Ef662B86096C492D",
-      "blocknumber": 48634874,
+      "address": "0x8E941c2141e37c8c427565d7415a179E3677ab24",
+      "target": "0x8E941c2141e37c8c427565d7415a179E3677ab24",
+      "blocknumber": 47028531,
       "constructorArguments": "",
       "network": {
         "name": "dev",
         "chainId": 31337,
         "url": "http://127.0.0.1:8545"
-      }
+      },
+      "p_address": ""
     },
     "ttoken": {
       "contractName": "ttoken",
