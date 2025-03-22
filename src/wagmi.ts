@@ -2,7 +2,7 @@ import { http, createConfig, createStorage } from '@wagmi/vue'
 import { bsc,bscTestnet,localhost } from '@wagmi/vue/chains'
 import { coinbaseWallet, walletConnect } from '@wagmi/vue/connectors'
 
-import { type Chain } from 'viem'
+import {type Chain} from 'viem'
 export const ZMnet = {
   id: 7156778,
   name: 'ZHAOMEI',
@@ -37,7 +37,7 @@ export const config = createConfig({
   storage: createStorage({ storage: localStorage, key: 'vite-vue' }),
   transports: {
     // [ZMnet.id]: http(),
-    [bsc.id]: http(),
+    [bsc.id]: http('https://bsc-dataseed.bnbchain.org'),
     [bscTestnet.id]: http(),
     // [DEVnet.id]: http(),
   },

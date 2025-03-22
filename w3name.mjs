@@ -17,6 +17,8 @@ async function main(){
         if (res.ok) break
         console.log('Waiting for payment plan to be selected...')
         await new Promise(resolve => setTimeout(resolve, 1000))
+        console.log(222)
+
     }
     console.log("邮箱确认完毕")
     let did=config.did

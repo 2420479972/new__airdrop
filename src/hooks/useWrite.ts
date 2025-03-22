@@ -14,6 +14,8 @@ export const useWrite = (functionName: ABIERCType<'ttoken'> | ABIERCType<'ERC122
     const addressStore = useAddressStore()
     const {writeContractAsync, isPending,error,reset} = useWriteContract()
     const write = async (paramsList: any[],other:any ={}) => {
+        console.log(ABI[chainId.value][options.type].abi);
+        console.log(chainId.value)
         let params:any= {
             functionName
         };
